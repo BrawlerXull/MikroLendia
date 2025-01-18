@@ -39,10 +39,6 @@ const useLoanContract = () => {
       const contract = getLoanContract(provider);
       console.log(contract);
       const loans = await contract.getAllLoans();
-      console.log(loans);
-      const loanCount = loans.length;
-      console.log(loanCount);
-      console.log(loans);
       setLoanData(loans);
       console.log("Fetched all loans:", loans);
     } catch (err: unknown) {

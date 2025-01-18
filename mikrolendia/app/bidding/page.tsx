@@ -8,10 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import {LoanCard} from '@/components/ui/loanCard'
 import useLoanContract from '@/lib/hooks/useLoanContract'
 import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
+import useUserContract from '@/lib/hooks/useUserContract'
 import { ArrowBigUp } from 'lucide-react'
 
 
@@ -109,74 +111,15 @@ export default function Bidding() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-64 ">
           {filteredLoans.length > 0 ? (
             filteredLoans.map((loan, index) => (
-              <Card key={index} className=' ' >
-                <CardHeader>
-                  <CardTitle className=' py-2'>
-                    {loan.typeOfLoan === 1 && <span> Personal </span>}
-                    {loan.typeOfLoan === 2 && <span>Business </span>}
-                    {loan.typeOfLoan === 3 && <span>Student </span>}
-                    Loan
-                  </CardTitle>
-                  <CardDescription>{loan.requester}</CardDescription>
-                </CardHeader>
-                <CardContent className=' flex justify-between align-bottom items-end mb-[-10px]'>
-                  <div  className=' dark:bg-inherit bg-slate-200 w-[72%]  p-2  rounded-xl'> 
-
-                    {/* Convert BigNumber amount to string */}
-                    <p className="font-semibold mb-2">{loan.amount / Math.pow(10, 18)}ETH</p>
-                    <p className="text-sm mb-2">{loan.description.length > 20 ? `${loan.description.slice(0, 20)}...${loan.description.slice(-10)}`
-                      : loan.description}
-                    </p>
-                    <div className=' flex justify-between'>
-                      <Badge className=' p-2' >
-                        Strikes: 1
-                      </Badge>
-
-                    </div>
-                  </div>
-
-                  <div>
-                    <Badge className=' p-2 mb-2 flex gap-1 dark:bg-green-600 ' >
-                    <ArrowBigUp className=' h-5 w-5 dark:bg bg-green-600 rounded-sm' />
-                      Bids: 1
-                    </Badge>
-                  </div>
-
-                </CardContent>
-                <CardFooter>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button onClick={() => handleBid(loan)} className=' w-full ' >Bid</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Place a Bid</DialogTitle>
-                        <DialogDescription>
-                          Enter the interest rate you want to offer for this loan.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="interest-rate" className="text-right">
-                            Interest Rate (%)
-                          </Label>
-                          <Input
-                            id="interest-rate"
-                            type="number"
-                            step="0.1"
-                            value={interestRate}
-                            onChange={(e) => setInterestRate(e.target.value)}
-                            className="col-span-3"
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={submitBid}>Submit Bid</Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </CardFooter>
-              </Card>
+              <LoanCard 
+              index={index}
+              loan={loan}
+              handleBid={handleBid}
+              submitBid={submitBid}
+              setInterestRate={setInterestRate}
+              interestRate={+interestRate} 
+              />
+              
             ))
           ) : (
             <p>No loans found matching your criteria.</p>
