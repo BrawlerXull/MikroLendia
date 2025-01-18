@@ -24,18 +24,18 @@ export default function Community() {
   const [newCommunityInterestRate, setNewCommunityInterestRate] = useState('')
   const [newCommunityRequiredSignatures, setNewCommunityRequiredSignatures] = useState('')
   const [showNewCommunityDialog, setShowNewCommunityDialog] = useState(false)
-  const [owners, setOwners]=useState<[string]>([''])
-const {deployCommunity, allCommunities, userCommunities}=useCommunityFactory()
-const {walletAddress}=useAppSelector(state=>state.wallet)
-useEffect(()=>{
-  console.log(allCommunities)
-}, [allCommunities])
+  const [owners, setOwners] = useState<[string]>([''])
+  const { deployCommunity, allCommunities, userCommunities } = useCommunityFactory()
+  const { walletAddress } = useAppSelector(state => state.wallet)
+  useEffect(() => {
+    console.log(allCommunities)
+  }, [allCommunities])
   const handleJoin = () => {
     // setCommunities(communities.map(c => 
     //   c.id === communityId ? { ...c, joined: true } : c
     // ))
   }
-  const handleOwnerChange = (index:  number, event: { target: { value: any } }) => {
+  const handleOwnerChange = (index: number, event: { target: { value: any } }) => {
     const newOwners = [...owners];
     newOwners[index] = event.target.value;
     setOwners(newOwners);
@@ -43,12 +43,12 @@ useEffect(()=>{
   const addOwnerField = () => {
     setOwners([...owners, ""]);
   };
-  const handleCreateCommunity = async() => {
-    try{
-      const initData=new ethers.utils.Interface(CommunityABI).encodeFunctionData("initialize", [owners, newCommunityRequiredSignatures, newCommunityName, newCommunityInterestRate, loanContractAddress]);
+  const handleCreateCommunity = async () => {
+    try {
+      const initData = new ethers.utils.Interface(CommunityABI).encodeFunctionData("initialize", [owners, newCommunityRequiredSignatures, newCommunityName, newCommunityInterestRate, loanContractAddress]);
       await deployCommunity(initData, owners, newCommunityName)
     }
-    catch(err: any){
+    catch (err: any) {
       console.log(err)
     };
   }
@@ -78,31 +78,31 @@ useEffect(()=>{
           <TabsTrigger value="joined">Joined Communities</TabsTrigger>
         </TabsList>
         <TabsContent value="all">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
             {filteredCommunities.map((community, index) => (
               <CommunityCard
-              owners={community.owners}
-                key={index} 
-                community={community} 
-                walletAddress={walletAddress?walletAddress:""}
-                onJoin={handleJoin} 
+                owners={community.owners}
+                key={index}
+                community={community}
+                walletAddress={walletAddress ? walletAddress : ""}
+                onJoin={handleJoin}
                 loanRequests={loanRequests}
                 onApproveLoan={handleApproveLoan}
-                
-                />
-              ))}
+
+              />
+            ))}
           </div>
         </TabsContent>
         <TabsContent value="joined">
           {filteredCommunities.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {userCommunities.map((community, index) => (
-                <CommunityCard 
-                owners={community.owners}
-                key={index} 
-                community={community} 
-                walletAddress={walletAddress?walletAddress:""}
-                  onJoin={handleJoin} 
+                <CommunityCard
+                  owners={community.owners}
+                  key={index}
+                  community={community}
+                  walletAddress={walletAddress ? walletAddress : ""}
+                  onJoin={handleJoin}
                   onLoanRequest={handleLoanRequest}
                   onApproveLoan={handleApproveLoan}
                 />
@@ -130,8 +130,8 @@ useEffect(()=>{
                 placeholder="Enter community name"
               />
             </div>
-            
-              <Label htmlFor="community-owners">Community Owners</Label>
+
+            <Label htmlFor="community-owners">Community Owners</Label>
             {owners.map((owner, index) => (
               <div key={index} id="community-owners">
 
@@ -141,12 +141,12 @@ useEffect(()=>{
                   placeholder={`Owner ${index + 1} Address`}
                   value={owner}
                   onChange={(e) => handleOwnerChange(index, e)}
-                  />
-                  </div>
-              ))}
-              <Button onClick={addOwnerField} className={"w-full "}>
-                Add Owner
-              </Button>
+                />
+              </div>
+            ))}
+            <Button onClick={addOwnerField} className={"w-full "}>
+              Add Owner
+            </Button>
             <div>
               <Label htmlFor="community-interest-rate">Fixed Loan Interest Rate (%)</Label>
               <Input
