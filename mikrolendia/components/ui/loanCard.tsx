@@ -56,12 +56,8 @@ export function LoanCard({
       <CardContent className=" flex justify-between align-bottom items-end mb-[-10px]">
         <div className=" dark:bg-inherit bg-slate-200 w-[72%]  p-2  rounded-xl">
           {/* Convert BigNumber amount to string */}
-          <p className="font-semibold mb-2">
-          {userDetails?.name}
-          </p>
-          <p className="font-semibold mb-2">
-            +91 {userDetails?.phone}
-          </p>
+          <p className="font-semibold mb-2">{userDetails?.name}</p>
+          <p className="font-semibold mb-2">+91 {userDetails?.phone}</p>
           <p className="font-semibold mb-2">
             {loan.amount / Math.pow(10, 18)} AVAX
           </p>
