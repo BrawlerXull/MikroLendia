@@ -39,11 +39,11 @@ export function Chatbot() {
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         if (event.error === 'no-speech') {
-          setSpeechRecognitionError('No speech detected, please try again.');
+          setSpeechRecognitionError('No speech detected');
         } else if (event.error === 'audio-capture') {
-          setSpeechRecognitionError('Audio capture failed. Please ensure your microphone is working.');
+          setSpeechRecognitionError('Audio capture failed.');
         } else {
-          setSpeechRecognitionError('An error occurred with speech recognition.');
+          setSpeechRecognitionError(' error.');
         }
       };
     } else {
