@@ -52,28 +52,37 @@ export function LoanCard({
           Loan
         </CardTitle>
         <CardDescription>{loan.requester}</CardDescription>
+
+        <div className=" flex justify-between pt-2" >
+          <p className="font-semibold ">
+            {userDetails?.name}
+          </p>
+          <p className="font-semibold ">
+            +91 {userDetails?.phone}
+          </p>
+        </div>
       </CardHeader>
       <CardContent className=" flex justify-between align-bottom items-end mb-[-10px]">
-        <div className=" dark:bg-inherit bg-slate-200 w-[72%]  p-2  rounded-xl">
-          {/* Convert BigNumber amount to string */}
-          <p className="font-semibold mb-2">{userDetails?.name}</p>
-          <p className="font-semibold mb-2">+91 {userDetails?.phone}</p>
-          <p className="font-semibold mb-2">
-            {loan.amount / Math.pow(10, 18)} AVAX
-          </p>
-          <p className="text-sm mb-2">
-            {loan.description.length > 20
-              ? `${loan.description.slice(0, 20)}...${loan.description.slice(
+        <div className=" ">
+          <div className=" dark:bg-inherit bg-slate-100 w-[102%]  p-2  rounded-xl">
+            <p className="font-semibold mb-2">
+              {loan.amount / Math.pow(10, 18)} AVAX
+            </p>
+            <p className="text-sm mb-2">
+              {loan.description.length > 20
+                ? `${loan.description.slice(0, 20)}...${loan.description.slice(
                   -10
                 )}`
-              : loan.description}
-          </p>
-          <div className=" flex justify-between">
-            <Badge className=" p-2">
-              Strikes: {Number(userDetails?.strikes)}
-            </Badge>
+                : loan.description}
+            </p>
+            <div className=" flex justify-between">
+              <Badge className=" p-2">
+                Strikes: {Number(userDetails?.strikes)}
+              </Badge>
+            </div>
           </div>
         </div>
+
 
         <div>
           <Badge className=" p-2 mb-2 flex gap-1 dark:bg-green-600 ">
@@ -89,32 +98,7 @@ export function LoanCard({
               Bid
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Place a Bid</DialogTitle>
-              <DialogDescription>
-                Enter the interest rate you want to offer for this loan.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="interest-rate" className="text-right">
-                  Interest Rate (%)
-                </Label>
-                <Input
-                  id="interest-rate"
-                  type="number"
-                  step="0.1"
-                  value={interestRate}
-                  onChange={(e) => setInterestRate(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={submitBid}>Submit Bid</Button>
-            </DialogFooter>
-          </DialogContent>
+
         </Dialog>
       </CardFooter>
     </Card>
