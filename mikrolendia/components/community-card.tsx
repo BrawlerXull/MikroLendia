@@ -108,11 +108,11 @@ function CommunityCard({
 
   }), [contract, provider, walletAddress];
   return (
-    <Card className="w-full max-w-[28rem] mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+    <Card className="w-full max-w-[30rem] mx-auto dark:bg-black bg-white shadow-md rounded-lg overflow-hidden">
       <CardHeader className="p-4">
         <CardTitle className="text-xl font-semibold">{community.name}</CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="p-4 ">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Available Funds:</span>
