@@ -8,6 +8,7 @@ import '@/styles/globals.css'
 import { Provider } from 'react-redux'
 import store from '@/lib/store/store'
 import {Toaster} from 'sonner'
+import { Chatbot } from '@/components/chatbot'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,6 +35,8 @@ export default function RootLayout({
               </main>
               <FooterOverlay />
             </div>
+          <Chatbot />
+
           </Provider>
         </ThemeProvider>
       </body>
