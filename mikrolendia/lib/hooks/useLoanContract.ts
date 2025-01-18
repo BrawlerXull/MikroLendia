@@ -115,11 +115,17 @@ const useLoanContract = () => {
     const contractWithSigner = contract.connect(signer);
 
     try {
+      const gas=await contractWithSigner.estimateGas.requestLoan(amount,
+        description,
+        loanType,
+        duration)
       const tx = await contractWithSigner.requestLoan(
         amount,
         description,
         loanType,
-        duration
+        duration,{
+          gas: gas
+        }
       );
       console.log("Loan request transaction sent:", tx);
       await tx.wait();

@@ -27,4 +27,4 @@ const txnSchema = new mongoose.Schema({
 })
 
 const Transaction= mongoose.model("Transaction", txnSchema);
-module.export=Transaction
+module.exports=Transaction

@@ -36,6 +36,7 @@ export default function RequestLoan() {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
       const data = await response.json();
+      console.log(data)
       return data.ethereum.inr; // Return the ETH price in INR
     } catch (error) {
       console.error('Error fetching ETH price:', error);

@@ -13,21 +13,14 @@ import CommunityCard from '@/components/community-card'
 import { ethers } from 'ethers'
 import CommunityABI from "../../lib/contract/config/CommunityAbi.json"
 import useCommunityFactory from '@/lib/hooks/useCommunityFactoryContract'
-const initialCommunities: Community[] = [
-  { id: 1, name: 'Small Business Boost', description: 'Supporting local entrepreneurs', funds: 50000, members: 1200, joined: false, interestRate: 5 },
-  { id: 2, name: 'Tech Startups United', description: 'Fueling innovation in tech', funds: 75000, members: 800, joined: true, interestRate: 7 },
-  { id: 3, name: 'Green Energy Initiative', description: 'Investing in sustainable projects', funds: 100000, members: 1500, joined: false, interestRate: 6 },
-]
+import { useAppSelector } from '@/lib/hooks/useAppSelector'
 
-const initialLoanRequests: LoanRequest[] = [
-  { id: 1, title: 'Eco-friendly Packaging', amount: 5000, description: 'Funds for sustainable packaging materials', approvals: 45, totalVotes: 60, requestor: 'Alice Green', communityId: 1 },
-  { id: 2, title: 'AI-powered Crop Monitoring', amount: 10000, description: 'Developing smart agriculture solutions', approvals: 30, totalVotes: 50, requestor: 'Bob Smith', communityId: 2 },
-]
+
 
 export default function Community() {
   const [activeTab, setActiveTab] = useState('all')
-  const [communities, setCommunities] = useState<Community[]>(initialCommunities)
-  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>(initialLoanRequests)
+  const [communities, setCommunities] = useState<Community[]>([])
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([])
   const [newCommunityName, setNewCommunityName] = useState('')
   const [newCommunityDescription, setNewCommunityDescription] = useState('')
   const [newCommunityInterestRate, setNewCommunityInterestRate] = useState('')
@@ -36,13 +29,14 @@ export default function Community() {
   const [owners, setOwners]=useState<[string]>([''])
   const joinedCommunities = communities.filter(c => c.joined)
 const {deployCommunity, allCommunities, userCommunities}=useCommunityFactory()
+const {walletAddress}=useAppSelector(state=>state.wallet)
 useEffect(()=>{
   console.log(allCommunities)
 }, [allCommunities])
   const handleJoin = (communityId: number) => {
-    setCommunities(communities.map(c => 
-      c.id === communityId ? { ...c, joined: true } : c
-    ))
+    // setCommunities(communities.map(c => 
+    //   c.id === communityId ? { ...c, joined: true } : c
+    // ))
   }
   const handleOwnerChange = (index:  number, event: { target: { value: any } }) => {
     const newOwners = [...owners];
@@ -62,27 +56,13 @@ useEffect(()=>{
     };
   }
 
-  const handleLoanRequest = (communityId: number, loanType: string, amount: number, description: string) => {
-    const newLoanRequest: LoanRequest = {
-      id: loanRequests.length + 1,
-      title: `${loanType} Loan`,
-      amount,
-      description,
-      approvals: 0,
-      totalVotes: 0,
-      requestor: 'Current User', // In a real app, this would be the logged-in user's name
-      communityId
-    }
-    setLoanRequests([...loanRequests, newLoanRequest])
-  }
-
   const handleApproveLoan = (loanId: number) => {
     setLoanRequests(loanRequests.map(loan =>
       loan.id === loanId ? { ...loan, approvals: loan.approvals + 1, totalVotes: loan.totalVotes + 1 } : loan
     ))
   }
 
-  const filteredCommunities = activeTab === 'all' ? communities : joinedCommunities
+  const filteredCommunities = activeTab === 'all' ? allCommunities : userCommunities
 
   return (
     <motion.div
@@ -102,28 +82,31 @@ useEffect(()=>{
         </TabsList>
         <TabsContent value="all">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCommunities.map((community) => (
+            {filteredCommunities.map((community, index) => (
               <CommunityCard
-                key={community.id} 
+              owners={community.owners}
+                key={index} 
                 community={community} 
+                walletAddress={walletAddress?walletAddress:""}
                 onJoin={handleJoin} 
-                onLoanRequest={handleLoanRequest}
                 loanRequests={loanRequests}
                 onApproveLoan={handleApproveLoan}
-              />
-            ))}
+                
+                />
+              ))}
           </div>
         </TabsContent>
         <TabsContent value="joined">
-          {joinedCommunities.length > 0 ? (
+          {filteredCommunities.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {joinedCommunities.map((community) => (
+              {userCommunities.map((community, index) => (
                 <CommunityCard 
-                  key={community.id} 
-                  community={community} 
+                owners={community.owners}
+                key={index} 
+                community={community} 
+                walletAddress={walletAddress?walletAddress:""}
                   onJoin={handleJoin} 
                   onLoanRequest={handleLoanRequest}
-                  loanRequests={loanRequests}
                   onApproveLoan={handleApproveLoan}
                 />
               ))}
