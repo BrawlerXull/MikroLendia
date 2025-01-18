@@ -10,6 +10,7 @@ const useLoanContract = () => {
     useState<ethers.providers.Web3Provider | null>(null);
   const [loanData, setLoanData] = useState<Loan[]>([]);
   const [userLoanData, setUserLoanData] = useState<Loan[]>([]);
+  const [approvedLoans, setApprovedLoans]=useState<Loan[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [creatingLoan, setCreatingLoan] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +56,32 @@ const useLoanContract = () => {
       setIsLoading(false);
     }
   }, [provider]);
+  const fetchApprovedLoans = useCallback(async () => {
+    if (!provider || !walletAddress) return;
+    console.log("yayay");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const contract = getLoanContract(provider);
+      console.log(contract);
+      const loans = await contract.getUserApprovedLoans(walletAddress);
+      setLoanData(loans);
+      console.log("Fetched all loans:", loans);
+    } catch (err: unknown) {
+      console.log(err);
+      if (err instanceof Error) {
+        console.error("Error fetching loans:", err.message);
+        setError("Failed to fetch loan data");
+      } else {
+        console.error("Unknown error fetching loans", err);
+        setError("An unexpected error occurred");
+      }
+      toast.error("An error occurred while fetching the loans.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [provider]);
 
   const fetchUserAllLoans = useCallback(async () => {
     if (!provider || !walletAddress) return;
@@ -71,7 +98,7 @@ const useLoanContract = () => {
       const loanCount = loans.length;
       console.log(loanCount);
       console.log(loans);
-      setUserLoanData(loans);
+      setApprovedLoans(loans);
       console.log("Fetched all user loans:", loans);
     } catch (err: unknown) {
       console.log(err);
@@ -92,6 +119,7 @@ const useLoanContract = () => {
     if (provider) {
       console.log("fetching");
       fetchAllLoans();
+      fetchApprovedLoans();
       fetchUserAllLoans();
     }
   }, [fetchAllLoans, fetchUserAllLoans, provider]);
@@ -270,7 +298,9 @@ const useLoanContract = () => {
     repayLoan,
     error,
     bidMoney,
-    addCommunityLoan
+    addCommunityLoan,
+    approvedLoans,
+    fetchApprovedLoans
   };
 };
 
