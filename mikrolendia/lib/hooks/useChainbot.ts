@@ -13,14 +13,14 @@ type Message = {
 
 enum FunctionName {
   REQUEST_LOAN = "requestLoan",
-  CREATE_COMMUNITY = "createCommunity"
+  CREATE_COMMUNITY = "createCommunity",
   // APPROVE_LOAN = "approveLoan",
   // REPAY_LOAN = "repayLoan",
   // FETCH_ALL_LOANS = "fetchAllLoans",
   // FETCH_USER_LOANS = "fetchUserLoans",
   // ADD_COMMUNITY_LOAN = "addCommunityLoan",
   // BID_MONEY = "bidMoney",
-  // GENERIC = "generic",
+  GENERIC = "generic",
 }
 
 const useChainbot = (initialMessages: Message[] = []) => {
@@ -93,6 +93,7 @@ const useChainbot = (initialMessages: Message[] = []) => {
       }
 
       const data = await response.json();
+      console.log(data)
 
       if (data.functionName) {
         const { functionName, parameters } = data;
@@ -155,6 +156,11 @@ const useChainbot = (initialMessages: Message[] = []) => {
           //   await bidMoney(ethers.utils.parseEther(bidAmount.toString()));
           //   botMessage.content = "Money bid successfully.";
           //   break;
+
+          case FunctionName.GENERIC:
+            const { aiResponse } = parameters;
+            botMessage.content = aiResponse;
+            break;
 
           default:
             botMessage.content = "Function not recognized.";
