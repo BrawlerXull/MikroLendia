@@ -116,10 +116,10 @@ export default function Dashboard() {
       className="container mx-auto px-4 py-8"
     >
       <h1 className="text-4xl font-bold mb-6">Dashboard</h1>
-      <div className=" flex justify-end">
+      <div className=" flex justify-between">
 
         <div>
-          <div className=" w-[70%] text-xl p-2">
+          <div className=" w-[70%] text-xl p-2 ">
             <div className=" flex gap-3">
               <Card className="  min-w-80 ">
                 <CardHeader>
@@ -158,6 +158,8 @@ export default function Dashboard() {
               {/* <TabsTrigger value="overview">Overview</TabsTrigger> */}
               <TabsTrigger value="requested-loans">Requested Loans</TabsTrigger>
               <TabsTrigger value="my-bids">My Bids</TabsTrigger>
+              <TabsTrigger value="approved-loans">Approved Loans</TabsTrigger>
+
               {/* <TabsTrigger value="approved-loands">My Loans</TabsTrigger> */}
 
               {/* <TabsTrigger value="transactions">Transactions</TabsTrigger>  */}
@@ -201,6 +203,42 @@ export default function Dashboard() {
                         : loan.typeOfLoan == 1
                           ? "Student"
                           : "Personal"} Loan
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="my-bids" className=" w-[100%]  p-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {DUMMY_BIDS.map((bid) => (
+                  <Card key={bid.id} className="  min-w-80 ">
+                    <CardHeader className=" ">
+                      <CardTitle>{bid.loanType} Loan</CardTitle>
+                      <CardDescription>${bid.amount}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge className="mb-2">{bid.status}</Badge>
+                      <p className="text-sm mb-2">Borrower: {bid.borrower}</p>
+                      <p className="text-sm">Interest Rate: {bid.interestRate}%</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="approved-loans" className=" w-[100%]  p-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {DUMMY_BIDS.map((bid) => (
+                  <Card key={bid.id} className="  min-w-80 ">
+                    <CardHeader className=" ">
+                      <CardTitle>{bid.loanType} Loan</CardTitle>
+                      <CardDescription>${bid.amount}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge className="mb-2">{bid.status}</Badge>
+                      <p className="text-sm mb-2">Borrower: {bid.borrower}</p>
+                      <p className="text-sm">Interest Rate: {bid.interestRate}%</p>
                     </CardContent>
                   </Card>
                 ))}

@@ -12,13 +12,12 @@ import useLoanContract from '@/lib/hooks/useLoanContract'
 import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
-import { Span } from 'next/dist/trace'
 import { ArrowBigUp } from 'lucide-react'
 
 
 
 export default function Bidding() {
-  const { loanData, isLoading, error, bidMoney } = useLoanContract()  // Get loan data from the custom hook
+  const { loanData, isLoading, error, bidMoney } = useLoanContract()  
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredLoans, setFilteredLoans] = useState<Loan[]>(loanData)  // Ensure this matches the correct type
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
@@ -35,7 +34,7 @@ export default function Bidding() {
       )
     )
   }, [searchTerm, loanData])
-  async function getEthPriceInINR() {
+  /* async function getEthPriceInINR() {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
       const data = await response.json();
@@ -44,7 +43,7 @@ export default function Bidding() {
       console.error('Error fetching ETH price:', error);
       throw new Error('Unable to fetch ETH price');
     }
-  }
+  } */
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase()
     setSearchTerm(term)
