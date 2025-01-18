@@ -116,14 +116,14 @@ export default function Bidding() {
                 {/* Convert BigNumber amount to string */}
                 <p className="font-semibold mb-2">{loan.amount/Math.pow(10,18)}ETH</p>
                 <p className="text-sm mb-2">{loan.description}</p>
-                <Badge >
+                <Badge className=' p-2' >
                   Strikes: 1
                 </Badge>
               </CardContent>
               <CardFooter>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button onClick={() => handleBid(loan)}>Bid</Button>
+                    <Button onClick={() => handleBid(loan)} className=' w-full' >Bid</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
