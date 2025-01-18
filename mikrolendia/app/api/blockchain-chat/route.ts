@@ -33,9 +33,14 @@ export async function POST(req: Request) {
     Just return me the response in json dont give any other description
     The user can perform the following actions:
     - "Request loan [amount]": Call the "requestLoan" function with the amount in ETH.
+    - "Create a community": Call the "createCommunity" function with the communityName, communityOwners (array of address), interestRate, requiredSignatures parameters.
     {
       "functionName": "requestLoan",
       "parameters": { "amount": 0.001 , "description": "Some description" , "loanType": 0(personal) or 1(business) or 2(student) , "duration": 1}
+    }
+    {
+      "functionName": "createCommunity",
+      "parameters": { "communityName": "Star community" , "communityOwners": ["0x186662Ce659216a80B074b9D6a28676A112882b6","0xd6EF4e5C3cE2fB06faD3830742Ea303b6339D6e8"] , "interestRate": 2.3 , "requiredSignatures": 2}
     }
   `;
 
@@ -57,7 +62,7 @@ export async function POST(req: Request) {
 
       if (responseData.functionName) {
         if (
-          ['requestLoan'].includes(responseData.functionName)
+          ['requestLoan' , 'createCommunity'].includes(responseData.functionName)
         ) {
           return NextResponse.json(responseData);
         } else if (responseData.functionName === 'generic') {

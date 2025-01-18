@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'sonner';
 import { getUserContract } from '../contract/contract'; // Assuming this is where your contract is imported from
+import { useAppSelector } from './useAppSelector';
 
 // Define a User interface based on the contract structure
 interface User {
@@ -17,19 +18,19 @@ interface User {
 
 type ErrorType = string | null;
 
-const useUserContract = () => {
+const useUserContract = (address: string) => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [userDetails, setUserDetails] = useState<User | null>(null); // Store user data
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<ErrorType>(null); // Handle errors
-
+  const {walletAddress}=useAppSelector(state=>state.wallet); 
   // Initialize Ethereum provider
   useEffect(() => {
     const initProvider = async () => {
       if (window.ethereum) {
+        console.log(address)
         const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
         setProvider(web3Provider);
-        console.log('Ethereum provider initialized');
       } else {
         toast.error('Please install MetaMask to interact with the blockchain.');
       }
@@ -37,18 +38,26 @@ const useUserContract = () => {
 
     initProvider();
   }, []);
+  useEffect(()=>{
+    if(provider){
+      fetchUserDetails()
+    }
+  },[provider])
 
   // Fetch user details from the contract
   const fetchUserDetails = useCallback(async () => {
+    console.log("yay")
+    console.log("nigga")
+    console.log(provider)
     if (!provider) return;
-
+    console.log("nigga")
     setIsLoading(true);
 
     try {
       const contract = getUserContract(provider); // Assuming getUserContract is a utility function that returns the contract
       const signer = provider.getSigner();
-      const address = await signer.getAddress(); // Get the current user's address
-      const user = await contract.getUser(address); // Call the getUser function of the contract
+      const user = await contract.getUser(address);
+      // console.log() // Call the getUser function of the contract
       console.log('User details fetched:', user);
       setUserDetails(user); // Set the fetched user data
     } catch (err: unknown) {
@@ -64,7 +73,7 @@ const useUserContract = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [provider]);
+  }, [provider, walletAddress]);
 
   // Add a strike to a user
   const addStrike = async (userAddress: string) => {
