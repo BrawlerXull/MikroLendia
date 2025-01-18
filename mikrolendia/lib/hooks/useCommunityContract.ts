@@ -63,11 +63,11 @@ const useCommunity = (communityAddress: string) => {
   const addLoanRequest=async(amount: number, reason: string)=>{
     try{
       const ethPriceInINR = await getEthPriceInINR();
-      const ethAmount = amount / ethPriceInINR;
-      const loanAmount=Number(ethers.utils.parseUnits(ethAmount.toString()))
-      console.log(Number(loanAmount))
-      const res=await axios.post("http://localhost:5001/api/txn/add", {to: walletAddress, from:communityAddress ,amount: loanAmount, reason})
+      const ethAmount = amount/ethPriceInINR;
+      console.log((ethAmount/Math.pow(10,18)))
+      const res=await axios.post("http://localhost:5001/api/txn/add", {to: walletAddress, from:communityAddress ,amount: ethAmount, reason})
       console.log(res)
+      fetchLoans()
     }catch(err){
       console.log(err)
     }
@@ -77,26 +77,20 @@ const useCommunity = (communityAddress: string) => {
     if (!contract )return 
     const tx = await contract.executeTransaction(to, ethers.utils.parseEther(value.toString()), signatures);
     await tx.wait();
+    fetchLoans()
   };
-  const signTransaction=async(transaction: LoanRequest)=>{
-    const signer=await provider?.getSigner()
-    const hashMessage=ethers.utils.solidityKeccak256(["address","uint256","string"],[transaction.to, transaction.amount.toString(), ""])
-    const signature=await signer?.signMessage(hashMessage)
-    const res=await axios.post("http://localhost:5001/api/txn/sign", {transactionId:transaction._id, signature:{address: walletAddress, signature}})
-    console.log(res)
-  }
   const updateOwners = async (newOwners:[string], newRequiredSignatures:number) => {
     if (!contract )return 
     const tx = await contract.updateOwners(newOwners, newRequiredSignatures);
     await tx.wait();
   };
-
+  
   const changeLoanContract = async (newAddress: string) => {
     if (!contract )return 
     const tx = await contract.changeLoanContract(newAddress);
     await tx.wait();
   };
-
+  
   const verifyOwner = async (address: string) => {
     if (!contract )return 
     return await contract.isOwner(address);
@@ -110,7 +104,7 @@ const useCommunity = (communityAddress: string) => {
     }
     getBalance();
   }, [provider, communityAddress])
-
+  
   const fetchInterest=useCallback(()=>{
     const getInterest=async()=>{
       if(!contract )return 
@@ -121,28 +115,52 @@ const useCommunity = (communityAddress: string) => {
     }
     getInterest();
   }, [provider, contract, communityAddress])
-  const addSignatureToTransaction = async (to: string, value: number) => {
-    if (!userAddress) throw new Error("User address not detected");
-    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "string"], [to, ethers.utils.parseEther(value.toString()), ""]);
+  
+  function toBeArray(value: any) {
+    return Array.isArray(value) ? value : [value];
+}
+  
+  const signTransaction=async(transaction: LoanRequest)=>{
     const signer=await provider?.getSigner()
-    const signature = await signer?.signMessage(messageHash)
-    return signature;
-  };
-
-
+    console.log(ethers.utils.parseEther((transaction.amount).toString()))
+    const hashMessage=ethers.utils.solidityKeccak256(["address","uint256","string"],[transaction.to, ethers.utils.parseEther((transaction.amount).toString()), ""])
+    console.log(ethers.utils.arrayify(hashMessage))
+    const signature=await signer?.signMessage(ethers.utils.arrayify(hashMessage))
+    const res=await axios.post("http://localhost:5001/api/txn/sign", {transactionId:transaction._id, signature:{address: walletAddress, signature}}
+    )
+    fetchLoans()
+    console.log(res)
+  }
   const approveLoan=async(transaction: LoanRequest)=>{
-      if(!contract) return alert("Wallet not connected");
+    if(!contract) return alert("Wallet not connected");
       try{
         const signatures=transaction.signatures.map(sign=>sign.signature);
         console.log(signatures)
+        console.log(transaction.amount)
+        console.log(Number(ethers.utils.parseEther((transaction.amount).toString())))
+        const gas=await contract.estimateGas.executeTransaction(transaction.to, ethers.utils.parseEther(transaction.amount.toString()), signatures)
         const tx=await contract.executeTransaction(transaction.to, ethers.utils.parseEther(transaction.amount.toString()), signatures)
         await tx.wait();
         const res=await axios.post('http://localhost:5001/api/txn/execute', {txHash: tx.data, transactionId: transaction._id})
         alert("Executed Transaction")
       }catch(error){
         console.error(error);
-        alert("Could not add funds")
+        alert("Could not approve transaction")
       }
+  }
+  const addFunds=async(amount: number)=>{
+    if(amount<=0) return alert("Enter more than 0");
+    if(!contract) return alert("Contract not initialized");
+    try{
+      const tx=await contract.fundme({
+        value: ethers.utils.parseUnits(amount.toString(), "ether")
+      })
+      await tx.wait();
+      alert("Funds added")
+    }catch(error){
+      console.error(error);
+      alert("Could not add funds")
+    }
   }
   return {
     contract,
@@ -154,7 +172,6 @@ const useCommunity = (communityAddress: string) => {
     updateOwners,
     changeLoanContract,
     verifyOwner,
-    addSignatureToTransaction,
     fetchBalance,
     fetchInterest,
     balance,
@@ -164,7 +181,8 @@ const useCommunity = (communityAddress: string) => {
     addLoanRequest,
     fetchLoans,
     signTransaction,
-    approveLoan
+    approveLoan,
+    addFunds
   };
 };
 

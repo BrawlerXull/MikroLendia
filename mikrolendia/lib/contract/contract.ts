@@ -3,9 +3,9 @@ import LoanContractABI from './config/LoanContractABI.json';
 import UserContractABI from './config/UserContractABI.json';
 import CommunityABI from "./config/CommunityAbi.json"
 import CommunityFactoryABI from "./config/CommunityFactoryABI.json"
-const loanContractAddress = "0x4A1e8c5696a8B799D118AA3665ce0E75c64DB58b";
-const userContractAddress = "0x5D8d6f0D5632CdA559fFA5f7e9F5f66b2EDB011c";
-const communityFactoryAddress="0x08a7BA5De2e1B6272c8480D3b3A18b42C8951eBd";
+export const loanContractAddress = "0xcb779f1a6D512D1Ef6459ebdC2f90cf344afdB82";
+export const userContractAddress = "0xf1C457d29984A7Fd59e7Fb36Ff18CCa6A0Dc8f9A";
+export const communityFactoryAddress="0x8E5cDf5501DF72317141C79b7497028b5180eB68";
 export const getLoanContract = (provider: ethers.providers.Provider) => {
   return new ethers.Contract(loanContractAddress, LoanContractABI, provider);
 };

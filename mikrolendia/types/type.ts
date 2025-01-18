@@ -12,6 +12,7 @@ export type LoanRequest = {
   signatures: signature[];
   from: string;
   to: string;
+  executed: boolean
 };
 export type signature={
   _id: string,

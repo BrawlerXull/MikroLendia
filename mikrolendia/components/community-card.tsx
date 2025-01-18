@@ -39,8 +39,6 @@ function CommunityCard({
   owners,
   walletAddress,
   onJoin,
-  onLoanRequest,
-  onApproveLoan,
 }: {
   community: Community;
   onJoin: (id: number) => void;
@@ -59,6 +57,8 @@ function CommunityCard({
   const [loanType, setLoanType] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
   const [loanDescription, setLoanDescription] = useState("");
+  const [funds, setFunds]=useState<number>(0);
+  const [showFundsDialogue, setShowFundsDialogue]=useState<boolean>(false)
   const {
     balance,
     fetchBalance,
@@ -71,7 +71,8 @@ function CommunityCard({
     fetchLoans,
     requiredSignatures,
     signTransaction,
-    approveLoan
+    approveLoan,
+    addFunds
     
   } = useCommunity(community.contractAddress);
   const [joined, setJoined]=useState<boolean>(false)
@@ -92,6 +93,14 @@ function CommunityCard({
     setLoanAmount("");
     setLoanDescription("");
   };
+  const handleFundsSubmit=async(event: React.FormEvent)=>{
+    event.preventDefault();
+    const tx=await addFunds(funds)
+    console.log(tx)
+    setFunds(0);
+    setShowFundsDialogue(false)
+    await fetchBalance()
+  }
   useEffect(() => {
     fetchBalance();
     fetchInterest();
@@ -105,7 +114,7 @@ function CommunityCard({
       <CardContent>
         <div className="flex justify-between mb-2">
           <span>Available Funds:</span>
-          <span className="font-semibold">{balance?.toLocaleString()} ETH</span>
+          <span className="font-semibold">{(balance/Math.pow(10,18))?.toLocaleString()} ETH</span>
         </div>
         <div className="flex justify-between mb-2">
           <span>Members:</span>
@@ -118,15 +127,14 @@ function CommunityCard({
         {showDetails && joined && (
           <div className="mt-4">
             <h4 className="font-semibold mb-2">Active Loan Requests</h4>
-            {loanRequests.map((loan) => (
-              <Card  key={loan.id} className="mb-4 px-4">
-                <h5 className="font-medium">{loan.title}</h5>
-                <p className="text-sm text-muted-foreground mb-1">
-                  {loan.reason}
-                </p>
+            {loanRequests.filter(loan=>!loan.executed).map((loan) => (
+              <Card   key={loan._id} className="mb-4 px-4">
                 <p className="text-sm mb-2">Requestor: {loan.to}</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Reason: {loan.reason}
+                </p>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm">Amount: {loan.amount/Math.pow(10,18)} ETH</span>
+                  <span className="text-sm">Amount: {loan.amount} ETH</span>
                   <Badge variant="secondary">
                     {loan.signatures.length}/{requiredSignatures} Approvals
                   </Badge>
@@ -157,11 +165,41 @@ function CommunityCard({
         <Button variant="outline" onClick={() => setShowDetails(!showDetails)}>
           {showDetails ? "Hide Details" : "Show Details"}
         </Button>
-        {!community.joined && (
+        {joined? (
+          <Button onClick={() => setShowFundsDialogue(true)}>Add Funds</Button>
+        ): (
           <Button onClick={() => onJoin(community.id)}>Join Community</Button>
         )}
       </CardFooter>
 
+      <Dialog
+        open={showFundsDialogue}
+        onOpenChange={setShowFundsDialogue}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Funds</DialogTitle>
+            <DialogDescription>
+              Add funds to your community to help out your fellow members.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleFundsSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="funds-amount">Enter Amount</Label>
+              <Input
+                id="funds-amount"
+                type="number"
+                value={funds}
+                onChange={(e) => setFunds(+e.target.value)}
+                placeholder="Enter funds to be added"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">Submit Loan Request</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={showLoanRequestDialog}
         onOpenChange={setShowLoanRequestDialog}

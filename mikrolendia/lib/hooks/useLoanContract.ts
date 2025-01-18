@@ -123,9 +123,7 @@ const useLoanContract = () => {
         amount,
         description,
         loanType,
-        duration,{
-          gas: gas
-        }
+        duration
       );
       console.log("Loan request transaction sent:", tx);
       await tx.wait();
