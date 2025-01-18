@@ -21,48 +21,75 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./button";
 import { DialogHeader, DialogFooter } from "./dialog";
 import { Loan } from "@/types/type";
-export function LoanCard  ({index,
-    loan,
-    handleBid,
-    submitBid,
-    setInterestRate,
-    interestRate}:
- { index: number,
-  loan: any,
-  handleBid: (loan: Loan) => void,
-  submitBid: (event: React.FormEvent) => void,
-  setInterestRate: Dispatch<SetStateAction<string>>,
-  interestRate: number}
-)  {
-    const {userDetails, fetchUserDetails}=useUserContract(loan.requester)
-    useEffect(()=>{fetchUserDetails()}, [])
-    useEffect(()=>console.log(userDetails), [userDetails])
+import { ArrowBigUp } from "lucide-react";
+export function LoanCard({
+  index,
+  loan,
+  handleBid,
+  submitBid,
+  setInterestRate,
+  interestRate,
+}: {
+  index: number;
+  loan: any;
+  handleBid: (loan: Loan) => void;
+  submitBid: (event: React.FormEvent) => void;
+  setInterestRate: Dispatch<SetStateAction<string>>;
+  interestRate: number;
+}) {
+  const { userDetails, fetchUserDetails } = useUserContract(loan.requester);
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+  useEffect(() => console.log(userDetails), [userDetails]);
   return (
-    <Card key={index}>
+    <Card key={index} className=" ">
       <CardHeader>
-        <CardTitle>{loan.loanType} Loan</CardTitle>
-        <CardDescription>{userDetails?.name}-{loan.requester}</CardDescription>
+        <CardTitle className=" py-2">
+          {loan.typeOfLoan === 1 && <span> Personal </span>}
+          {loan.typeOfLoan === 2 && <span>Business </span>}
+          {loan.typeOfLoan === 3 && <span>Student </span>}
+          Loan
+        </CardTitle>
+        <CardDescription>{loan.requester}</CardDescription>
       </CardHeader>
-      <CardContent>
-        {/* Convert BigNumber amount to string */}
-        <p className="font-semibold mb-2">
-          {loan.amount / Math.pow(10, 18)} AVX
-        </p>
-        <p className="font-semibold mb-2">
-          +91 {userDetails?.phone}
-        </p>
-        <p className="font-semibold mb-2">
-          {userDetails?.city}
-        </p>
-        <p className="text-sm mb-2">{loan.description}</p>
-        <Badge className=" p-2">
-          Strikes: {Number(userDetails?.strikes)}
-        </Badge>
+      <CardContent className=" flex justify-between align-bottom items-end mb-[-10px]">
+        <div className=" dark:bg-inherit bg-slate-200 w-[72%]  p-2  rounded-xl">
+          {/* Convert BigNumber amount to string */}
+          <p className="font-semibold mb-2">
+          {userDetails?.name}
+          </p>
+          <p className="font-semibold mb-2">
+            +91 {userDetails?.phone}
+          </p>
+          <p className="font-semibold mb-2">
+            {loan.amount / Math.pow(10, 18)} AVAX
+          </p>
+          <p className="text-sm mb-2">
+            {loan.description.length > 20
+              ? `${loan.description.slice(0, 20)}...${loan.description.slice(
+                  -10
+                )}`
+              : loan.description}
+          </p>
+          <div className=" flex justify-between">
+            <Badge className=" p-2">
+              Strikes: {Number(userDetails?.strikes)}
+            </Badge>
+          </div>
+        </div>
+
+        <div>
+          <Badge className=" p-2 mb-2 flex gap-1 dark:bg-green-600 ">
+            <ArrowBigUp className=" h-5 w-5 dark:bg bg-green-600 rounded-sm" />
+            Bids: 1
+          </Badge>
+        </div>
       </CardContent>
       <CardFooter>
         <Dialog>
           <DialogTrigger asChild>
-            <Button onClick={() => handleBid(loan)} className=" w-full">
+            <Button onClick={() => handleBid(loan)} className=" w-full ">
               Bid
             </Button>
           </DialogTrigger>
@@ -83,9 +110,7 @@ export function LoanCard  ({index,
                   type="number"
                   step="0.1"
                   value={interestRate}
-                  onChange={(e: { target: { value: any } }) =>
-                    setInterestRate(e.target.value)
-                  }
+                  onChange={(e) => setInterestRate(e.target.value)}
                   className="col-span-3"
                 />
               </div>
@@ -98,6 +123,4 @@ export function LoanCard  ({index,
       </CardFooter>
     </Card>
   );
-};
-
-
+}

@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import type { Community, LoanRequest } from '@/types/type'
 import CommunityCard from '@/components/community-card'
 import { ethers } from 'ethers'
@@ -20,21 +19,18 @@ import { loanContractAddress } from '@/lib/contract/contract'
 
 export default function Community() {
   const [activeTab, setActiveTab] = useState('all')
-  const [communities, setCommunities] = useState<Community[]>([])
   const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([])
   const [newCommunityName, setNewCommunityName] = useState('')
-  const [newCommunityDescription, setNewCommunityDescription] = useState('')
   const [newCommunityInterestRate, setNewCommunityInterestRate] = useState('')
   const [newCommunityRequiredSignatures, setNewCommunityRequiredSignatures] = useState('')
   const [showNewCommunityDialog, setShowNewCommunityDialog] = useState(false)
   const [owners, setOwners]=useState<[string]>([''])
-  const joinedCommunities = communities.filter(c => c.joined)
 const {deployCommunity, allCommunities, userCommunities}=useCommunityFactory()
 const {walletAddress}=useAppSelector(state=>state.wallet)
 useEffect(()=>{
   console.log(allCommunities)
 }, [allCommunities])
-  const handleJoin = (communityId: number) => {
+  const handleJoin = () => {
     // setCommunities(communities.map(c => 
     //   c.id === communityId ? { ...c, joined: true } : c
     // ))

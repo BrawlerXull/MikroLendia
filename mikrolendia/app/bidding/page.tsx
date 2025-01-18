@@ -14,11 +14,12 @@ import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
 import useUserContract from '@/lib/hooks/useUserContract'
+import { ArrowBigUp } from 'lucide-react'
 
 
 
 export default function Bidding() {
-  const { loanData, isLoading, error, bidMoney } = useLoanContract()  // Get loan data from the custom hook
+  const { loanData, isLoading, error, bidMoney } = useLoanContract()  
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredLoans, setFilteredLoans] = useState<Loan[]>(loanData)  // Ensure this matches the correct type
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
@@ -28,14 +29,14 @@ export default function Bidding() {
   // Watch for changes in searchTerm or loanData
   useEffect(() => {
     setFilteredLoans(
-      loanData.filter((loan) => 
+      loanData.filter((loan) =>
 
         loan?.requester?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         loan?.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
   }, [searchTerm, loanData])
-  async function getEthPriceInINR() {
+  /* async function getEthPriceInINR() {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
       const data = await response.json();
@@ -44,7 +45,7 @@ export default function Bidding() {
       console.error('Error fetching ETH price:', error);
       throw new Error('Unable to fetch ETH price');
     }
-  }
+  } */
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase()
     setSearchTerm(term)
@@ -57,8 +58,8 @@ export default function Bidding() {
   const submitBid = async () => {
     if (selectedLoan && interestRate && walletAddress) {
       // Convert INR amount to ETH
-      const ethAmount = selectedLoan.amount/Math.pow(10,18)
-      const amount=ethers.utils.parseEther((ethAmount).toString());
+      const ethAmount = selectedLoan.amount / Math.pow(10, 18)
+      const amount = ethers.utils.parseEther((ethAmount).toString());
       await bidMoney(amount)
       const response = await fetch('http://localhost:5001/api/loan/bid', {
         method: 'POST',
@@ -67,8 +68,8 @@ export default function Bidding() {
         },
         body: JSON.stringify({
           loanIndex: Number(selectedLoan.loanId),
-           bidBy: walletAddress,
-            bid: interestRate,
+          bidBy: walletAddress,
+          bid: interestRate,
         }),
       });
 
@@ -104,24 +105,28 @@ export default function Bidding() {
         placeholder="Search loans..."
         value={searchTerm}
         onChange={handleSearch}
-        className="mb-6"
+        className="mb-6 p-5 border border-black"
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLoans.length > 0 ? (
-          filteredLoans.map((loan , index) => 
-            <LoanCard 
-            index={index}
-            loan={loan}
-            handleBid={handleBid}
-            submitBid={submitBid}
-            setInterestRate={setInterestRate}
-            interestRate={+interestRate} 
-            />
-          )
-        ) : (
-          <p>No loans found matching your criteria.</p>
-        )}
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-64 ">
+          {filteredLoans.length > 0 ? (
+            filteredLoans.map((loan, index) => (
+              <LoanCard 
+              index={index}
+              loan={loan}
+              handleBid={handleBid}
+              submitBid={submitBid}
+              setInterestRate={setInterestRate}
+              interestRate={+interestRate} 
+              />
+              
+            ))
+          ) : (
+            <p>No loans found matching your criteria.</p>
+          )}
+        </div>
       </div>
+
     </motion.div>
   )
 }

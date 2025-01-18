@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import useLoanContract from '@/lib/hooks/useLoanContract'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function RequestLoan() {
 
@@ -36,7 +37,6 @@ export default function RequestLoan() {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
       const data = await response.json();
-      console.log(data)
       return data.ethereum.inr; // Return the ETH price in INR
     } catch (error) {
       console.error('Error fetching ETH price:', error);
@@ -103,11 +103,90 @@ export default function RequestLoan() {
       transition={{ duration: 0.5 }}
       className="max-w-md mx-auto"
     >
-      <h1 className="text-3xl font-bold mb-6">Request a Loan</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* <form onSubmit={handleSubmit} className="space-y-4">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Create Your Account</CardTitle>
+          <CardDescription>Join MikroLendia and start your micro-lending journey</CardDescription>
+        </CardHeader>
+        <CardContent>
+          
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                type="number"
+                placeholder="30"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                placeholder="New York"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone-number">Phone Number</Label>
+              <Input
+                id="phone-number"
+                placeholder="+1 (555) 123-4567"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profession">Profession</Label>
+              <Select value={profession} onValueChange={setProfession}>
+                <SelectTrigger id="profession">
+                  <SelectValue placeholder="Select your profession" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="employed">Employed</SelectItem>
+                  <SelectItem value="self-employed">Self-employed</SelectItem>
+                  <SelectItem value="unemployed">Unemployed</SelectItem>
+                  <SelectItem value="retired">Retired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" className="w-full" disabled={creatingLoan}>
+            {creatingLoan ? 'Registering...' : 'Register'}
+          </Button>
+        </CardFooter>
+        </form> */}
+
+<Card>
+<form onSubmit={handleSubmit} className="space-y-4">
         {/* Loan Type */}
+
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Request a loan</CardTitle>
+          <CardDescription>Join MikroLendia and start your micro-lending journey</CardDescription>
+        </CardHeader>
+        <CardContent>
         <div>
           <Label htmlFor="loan-type">Loan Type</Label>
+          
           <Select onValueChange={setLoanType} required>
             <SelectTrigger id="loan-type">
               <SelectValue placeholder="Select loan type" />
@@ -152,11 +231,15 @@ export default function RequestLoan() {
             required
           />
         </div>
+        </CardContent>
 
+        <CardFooter>
         <Button type="submit" className="w-full" disabled={creatingLoan}>
           {creatingLoan ? 'Requesting Loan...' : 'Submit Loan Request'}
         </Button>
+        </CardFooter>
       </form>
+</Card>
     </motion.div>
   );
 }
