@@ -36,7 +36,8 @@ import { useAppSelector } from "@/lib/hooks/useAppSelector";
 
 function CommunityCard({
   community,
-  joined,
+  owners,
+  walletAddress,
   onJoin,
   onLoanRequest,
   loanRequests,
@@ -47,6 +48,8 @@ function CommunityCard({
   joined: boolean
   onLoanRequest: (
     communityId: number,
+    owners: [string],
+    walletAddress: string,
     loanType: string,
     amount: number,
     description: string
@@ -67,8 +70,16 @@ function CommunityCard({
     provider,
     contract,
   } = useCommunity(community.contractAddress);
+  const [joined, setJoined]=useState<boolean>(false)
+  useEffect(()=>{
+    if(walletAddress && owners){
+      console.log(owners)
+      setJoined(()=>{
+        return owners.includes(walletAddress)
+      })
+    }
+  },[walletAddress, owners])
   console.log(joined)
-  const {walletAddress}=useAppSelector((state) => state.wallet);
   const handleLoanRequest = (event: React.FormEvent) => {
     event.preventDefault();
     onLoanRequest(

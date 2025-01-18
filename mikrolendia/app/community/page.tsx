@@ -1,110 +1,50 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import type { Community, Community, LoanRequest } from "@/types/type";
-import CommunityCard from "@/components/community-card";
-import { ethers } from "ethers";
-import CommunityABI from "../../lib/contract/config/CommunityAbi.json";
-import useCommunityFactory from "@/lib/hooks/useCommunityFactoryContract";
-import { useAppSelector } from "@/lib/hooks/useAppSelector";
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import type { Community, LoanRequest } from '@/types/type'
+import CommunityCard from '@/components/community-card'
+import { ethers } from 'ethers'
+import CommunityABI from "../../lib/contract/config/CommunityAbi.json"
+import useCommunityFactory from '@/lib/hooks/useCommunityFactoryContract'
 const initialCommunities: Community[] = [
-  {
-    id: 1,
-    name: "Small Business Boost",
-    description: "Supporting local entrepreneurs",
-    funds: 50000,
-    members: 1200,
-    joined: false,
-    interestRate: 5,
-  },
-  {
-    id: 2,
-    name: "Tech Startups United",
-    description: "Fueling innovation in tech",
-    funds: 75000,
-    members: 800,
-    joined: true,
-    interestRate: 7,
-  },
-  {
-    id: 3,
-    name: "Green Energy Initiative",
-    description: "Investing in sustainable projects",
-    funds: 100000,
-    members: 1500,
-    joined: false,
-    interestRate: 6,
-  },
-];
+  { id: 1, name: 'Small Business Boost', description: 'Supporting local entrepreneurs', funds: 50000, members: 1200, joined: false, interestRate: 5 },
+  { id: 2, name: 'Tech Startups United', description: 'Fueling innovation in tech', funds: 75000, members: 800, joined: true, interestRate: 7 },
+  { id: 3, name: 'Green Energy Initiative', description: 'Investing in sustainable projects', funds: 100000, members: 1500, joined: false, interestRate: 6 },
+]
 
 const initialLoanRequests: LoanRequest[] = [
-  {
-    id: 1,
-    title: "Eco-friendly Packaging",
-    amount: 5000,
-    description: "Funds for sustainable packaging materials",
-    approvals: 45,
-    totalVotes: 60,
-    requestor: "Alice Green",
-    communityId: 1,
-  },
-  {
-    id: 2,
-    title: "AI-powered Crop Monitoring",
-    amount: 10000,
-    description: "Developing smart agriculture solutions",
-    approvals: 30,
-    totalVotes: 50,
-    requestor: "Bob Smith",
-    communityId: 2,
-  },
-];
+  { id: 1, title: 'Eco-friendly Packaging', amount: 5000, description: 'Funds for sustainable packaging materials', approvals: 45, totalVotes: 60, requestor: 'Alice Green', communityId: 1 },
+  { id: 2, title: 'AI-powered Crop Monitoring', amount: 10000, description: 'Developing smart agriculture solutions', approvals: 30, totalVotes: 50, requestor: 'Bob Smith', communityId: 2 },
+]
 
 export default function Community() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [communities, setCommunities] =
-    useState<Community[]>(initialCommunities);
-  const [loanRequests, setLoanRequests] =
-    useState<LoanRequest[]>(initialLoanRequests);
-  const [newCommunityName, setNewCommunityName] = useState("");
-  const [newCommunityDescription, setNewCommunityDescription] = useState("");
-  const [newCommunityInterestRate, setNewCommunityInterestRate] = useState("");
-  const [newCommunityRequiredSignatures, setNewCommunityRequiredSignatures] =
-    useState("");
-  const [showNewCommunityDialog, setShowNewCommunityDialog] = useState(false);
-  const [owners, setOwners] = useState<[string]>([""]);
-  const joinedCommunities = communities.filter((c) => c.joined);
-  const { walletAddress } = useAppSelector((state) => state.wallet);
-  const { deployCommunity, allCommunities, userCommunities } =
-    useCommunityFactory();
-  useEffect(() => {
-    console.log(allCommunities);
-  }, [allCommunities]);
+  const [activeTab, setActiveTab] = useState('all')
+  const [communities, setCommunities] = useState<Community[]>(initialCommunities)
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>(initialLoanRequests)
+  const [newCommunityName, setNewCommunityName] = useState('')
+  const [newCommunityDescription, setNewCommunityDescription] = useState('')
+  const [newCommunityInterestRate, setNewCommunityInterestRate] = useState('')
+  const [newCommunityRequiredSignatures, setNewCommunityRequiredSignatures] = useState('')
+  const [showNewCommunityDialog, setShowNewCommunityDialog] = useState(false)
+  const [owners, setOwners]=useState<[string]>([''])
+  const joinedCommunities = communities.filter(c => c.joined)
+const {deployCommunity, allCommunities, userCommunities}=useCommunityFactory()
+useEffect(()=>{
+  console.log(allCommunities)
+}, [allCommunities])
   const handleJoin = (communityId: number) => {
-    setCommunities(
-      communities.map((c) =>
-        c.id === communityId ? { ...c, joined: true } : c
-      )
-    );
-  };
-  const handleOwnerChange = (
-    index: number,
-    event: { target: { value: any } }
-  ) => {
+    setCommunities(communities.map(c => 
+      c.id === communityId ? { ...c, joined: true } : c
+    ))
+  }
+  const handleOwnerChange = (index:  number, event: { target: { value: any } }) => {
     const newOwners = [...owners];
     newOwners[index] = event.target.value;
     setOwners(newOwners);
@@ -112,33 +52,17 @@ export default function Community() {
   const addOwnerField = () => {
     setOwners([...owners, ""]);
   };
-  const handleCreateCommunity = async () => {
-    try {
-      const initData = new ethers.utils.Interface(
-        CommunityABI
-      ).encodeFunctionData("initialize", [
-        owners,
-        newCommunityRequiredSignatures,
-        newCommunityName,
-        newCommunityInterestRate,
-      ]);
-      await deployCommunity(initData, owners, newCommunityName);
-    } catch (err: any) {
-      console.log(err);
+  const handleCreateCommunity = async() => {
+    try{
+      const initData=new ethers.utils.Interface(CommunityABI).encodeFunctionData("initialize", [owners, newCommunityRequiredSignatures, newCommunityName, newCommunityInterestRate]);
+      await deployCommunity(initData, owners, newCommunityName)
     }
-  };
-  const isJoined=(community: Community)=>{
-    if(!community) return false;
-    if(!walletAddress) return false
-    console.log(community)
-    return community?.owners?.includes(walletAddress)
+    catch(err: any){
+      console.log(err)
+    };
   }
-  const handleLoanRequest = (
-    communityId: number,
-    loanType: string,
-    amount: number,
-    description: string
-  ) => {
+
+  const handleLoanRequest = (communityId: number, loanType: string, amount: number, description: string) => {
     const newLoanRequest: LoanRequest = {
       id: loanRequests.length + 1,
       title: `${loanType} Loan`,
@@ -146,28 +70,19 @@ export default function Community() {
       description,
       approvals: 0,
       totalVotes: 0,
-      requestor: "Current User", // In a real app, this would be the logged-in user's name
-      communityId,
-    };
-    setLoanRequests([...loanRequests, newLoanRequest]);
-  };
+      requestor: 'Current User', // In a real app, this would be the logged-in user's name
+      communityId
+    }
+    setLoanRequests([...loanRequests, newLoanRequest])
+  }
 
   const handleApproveLoan = (loanId: number) => {
-    setLoanRequests(
-      loanRequests.map((loan) =>
-        loan.id === loanId
-          ? {
-              ...loan,
-              approvals: loan.approvals + 1,
-              totalVotes: loan.totalVotes + 1,
-            }
-          : loan
-      )
-    );
-  };
+    setLoanRequests(loanRequests.map(loan =>
+      loan.id === loanId ? { ...loan, approvals: loan.approvals + 1, totalVotes: loan.totalVotes + 1 } : loan
+    ))
+  }
 
-  const filteredCommunities =
-    activeTab === "all" ? communities : joinedCommunities;
+  const filteredCommunities = activeTab === 'all' ? communities : joinedCommunities
 
   return (
     <motion.div
@@ -178,9 +93,7 @@ export default function Community() {
     >
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold">Communities</h1>
-        <Button onClick={() => setShowNewCommunityDialog(true)}>
-          Create Community
-        </Button>
+        <Button onClick={() => setShowNewCommunityDialog(true)}>Create Community</Button>
       </div>
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="mb-4">
@@ -189,11 +102,11 @@ export default function Community() {
         </TabsList>
         <TabsContent value="all">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allCommunities.map((community, index) => (
+            {filteredCommunities.map((community) => (
               <CommunityCard
-                key={index}
-                community={community}
-                onJoin={handleJoin}
+                key={community.id} 
+                community={community} 
+                onJoin={handleJoin} 
                 onLoanRequest={handleLoanRequest}
                 loanRequests={loanRequests}
                 onApproveLoan={handleApproveLoan}
@@ -205,35 +118,27 @@ export default function Community() {
           {joinedCommunities.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {joinedCommunities.map((community) => (
-                <CommunityCard
-                  key={community.id}
-                  community={community}
-                  onJoin={handleJoin}
+                <CommunityCard 
+                  key={community.id} 
+                  community={community} 
+                  onJoin={handleJoin} 
                   onLoanRequest={handleLoanRequest}
-                  joined={isJoined(community)}
                   loanRequests={loanRequests}
                   onApproveLoan={handleApproveLoan}
                 />
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground">
-              You haven&#39;t joined any communities yet.
-            </p>
+            <p className="text-center text-muted-foreground">You haven&#39;t joined any communities yet.</p>
           )}
         </TabsContent>
       </Tabs>
 
-      <Dialog
-        open={showNewCommunityDialog}
-        onOpenChange={setShowNewCommunityDialog}
-      >
+      <Dialog open={showNewCommunityDialog} onOpenChange={setShowNewCommunityDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Community</DialogTitle>
-            <DialogDescription>
-              Fill out the details to create a new community.
-            </DialogDescription>
+            <DialogDescription>Fill out the details to create a new community.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -245,26 +150,25 @@ export default function Community() {
                 placeholder="Enter community name"
               />
             </div>
-
-            <Label htmlFor="community-owners">Community Owners</Label>
+            
+              <Label htmlFor="community-owners">Community Owners</Label>
             {owners.map((owner, index) => (
               <div id="community-owners">
+
                 <Input
                   id={`${index}`}
                   type="text"
                   placeholder={`Owner ${index + 1} Address`}
                   value={owner}
                   onChange={(e) => handleOwnerChange(index, e)}
-                />
-              </div>
-            ))}
-            <Button onClick={addOwnerField} className={"w-full "}>
-              Add Owner
-            </Button>
+                  />
+                  </div>
+              ))}
+              <Button onClick={addOwnerField} className={"w-full "}>
+                Add Owner
+              </Button>
             <div>
-              <Label htmlFor="community-interest-rate">
-                Fixed Loan Interest Rate (%)
-              </Label>
+              <Label htmlFor="community-interest-rate">Fixed Loan Interest Rate (%)</Label>
               <Input
                 id="community-interest-rate"
                 type="number"
@@ -274,16 +178,12 @@ export default function Community() {
               />
             </div>
             <div>
-              <Label htmlFor="community-required-signatures">
-                Required Signatures
-              </Label>
+              <Label htmlFor="community-required-signatures">Required Signatures</Label>
               <Input
                 id="community-required-signatures"
                 type="number"
                 value={newCommunityRequiredSignatures}
-                onChange={(e) =>
-                  setNewCommunityRequiredSignatures(e.target.value)
-                }
+                onChange={(e) => setNewCommunityRequiredSignatures(e.target.value)}
                 placeholder="Enter number of signatures required"
               />
             </div>
@@ -294,5 +194,5 @@ export default function Community() {
         </DialogContent>
       </Dialog>
     </motion.div>
-  );
+  )
 }
