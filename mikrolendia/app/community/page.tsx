@@ -14,6 +14,7 @@ import { ethers } from 'ethers'
 import CommunityABI from "../../lib/contract/config/CommunityAbi.json"
 import useCommunityFactory from '@/lib/hooks/useCommunityFactoryContract'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
+import { loanContractAddress } from '@/lib/contract/contract'
 
 
 
@@ -48,7 +49,7 @@ useEffect(()=>{
   };
   const handleCreateCommunity = async() => {
     try{
-      const initData=new ethers.utils.Interface(CommunityABI).encodeFunctionData("initialize", [owners, newCommunityRequiredSignatures, newCommunityName, newCommunityInterestRate]);
+      const initData=new ethers.utils.Interface(CommunityABI).encodeFunctionData("initialize", [owners, newCommunityRequiredSignatures, newCommunityName, newCommunityInterestRate, loanContractAddress]);
       await deployCommunity(initData, owners, newCommunityName)
     }
     catch(err: any){
@@ -136,7 +137,7 @@ useEffect(()=>{
             
               <Label htmlFor="community-owners">Community Owners</Label>
             {owners.map((owner, index) => (
-              <div id="community-owners">
+              <div key={index} id="community-owners">
 
                 <Input
                   id={`${index}`}

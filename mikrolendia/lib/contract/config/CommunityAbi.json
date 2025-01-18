@@ -190,6 +190,11 @@
         "internalType": "uint256",
         "name": "_fixedInterest",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_loan",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -211,6 +216,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "loan",
+    "outputs": [
+      {
+        "internalType": "contract LoanContract",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

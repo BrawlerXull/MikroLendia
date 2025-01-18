@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ethers, Contract } from "ethers";
 import { toast } from "sonner";
-import {  getCommunityFactoryContract } from "../contract/contract";
+import {  getCommunityFactoryContract, loanContractAddress  } from "../contract/contract";
 
 type Community = {
   contractAddress: string;

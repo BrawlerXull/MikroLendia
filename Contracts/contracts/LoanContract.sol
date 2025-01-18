@@ -121,9 +121,6 @@ contract LoanContract {
 
     
     function addCommunityLoan(uint256 amount, uint256 interest, address payable _community) public{
-        Community community=Community(_community);
-        require(community.isOwner(msg.sender), "You are not a part of this community");
-        require(address(community).balance>=amount,"You har community does not have enough balance to request this loan");
         LoanStruct storage newLoan = Loans[totalLoans];
         newLoan.requester=msg.sender;
         newLoan.loanId = totalLoans;
