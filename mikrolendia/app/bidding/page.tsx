@@ -8,15 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import {LoanCard} from '@/components/ui/loanCard'
+import { LoanCard } from '@/components/ui/loanCard'
 import useLoanContract from '@/lib/hooks/useLoanContract'
 import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
 import useUserContract from '@/lib/hooks/useUserContract'
 import { ArrowBigUp } from 'lucide-react'
-
-
 
 export default function Bidding() {
   const { loanData, isLoading, error, bidMoney } = useLoanContract()  
@@ -36,16 +34,7 @@ export default function Bidding() {
       )
     )
   }, [searchTerm, loanData])
-  /* async function getEthPriceInINR() {
-    try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
-      const data = await response.json();
-      return data.ethereum.inr; // Return the ETH price in INR
-    } catch (error) {
-      console.error('Error fetching ETH price:', error);
-      throw new Error('Unable to fetch ETH price');
-    }
-  } */
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase()
     setSearchTerm(term)
@@ -111,15 +100,12 @@ export default function Bidding() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-64 ">
           {filteredLoans.length > 0 ? (
             filteredLoans.map((loan, index) => (
-              <LoanCard 
-              index={index}
-              loan={loan}
-              handleBid={handleBid}
-              submitBid={submitBid}
-              setInterestRate={setInterestRate}
-              interestRate={+interestRate} 
+              <LoanCard
+                key={index}
+                index={index}
+                loan={loan}
+                handleBid={handleBid}
               />
-              
             ))
           ) : (
             <p>No loans found matching your criteria.</p>
@@ -127,6 +113,43 @@ export default function Bidding() {
         </div>
       </div>
 
+      {/* Submit Bid Dialog */}
+      <Dialog open={!!selectedLoan} onOpenChange={(open) => { if (!open) setSelectedLoan(null) }}>
+        <DialogTrigger asChild>
+          <Button onClick={() => {}} className="hidden"></Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit Your Bid</DialogTitle>
+            <DialogDescription>Enter the interest rate to submit your bid for this loan.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedLoan && (
+              <>
+                <p className="text-lg font-semibold">Loan Amount: {selectedLoan.amount / Math.pow(10, 18)} ETH</p>
+                <Label htmlFor="interest-rate">Interest Rate (%)</Label>
+                <Input
+                  id="interest-rate"
+                  type="number"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                  placeholder="Enter your interest rate"
+                />
+              </>
+            )}
+          </div>
+          <DialogFooter className=' flex items-center '>
+            <Button
+              onClick={submitBid}
+              disabled={!interestRate || !selectedLoan}
+              className=' w-full bg-black'
+            >
+              Submit Bid
+            </Button>
+         
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }
