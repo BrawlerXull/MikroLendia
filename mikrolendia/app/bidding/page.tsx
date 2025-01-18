@@ -12,6 +12,8 @@ import useLoanContract from '@/lib/hooks/useLoanContract'
 import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
+import { Span } from 'next/dist/trace'
+import { ArrowBigUp } from 'lucide-react'
 
 
 
@@ -26,7 +28,7 @@ export default function Bidding() {
   // Watch for changes in searchTerm or loanData
   useEffect(() => {
     setFilteredLoans(
-      loanData.filter((loan) => 
+      loanData.filter((loan) =>
 
         loan?.requester?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         loan?.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,8 +57,8 @@ export default function Bidding() {
   const submitBid = async () => {
     if (selectedLoan && interestRate && walletAddress) {
       // Convert INR amount to ETH
-      const ethAmount = selectedLoan.amount/Math.pow(10,18)
-      const amount=ethers.utils.parseEther((ethAmount).toString());
+      const ethAmount = selectedLoan.amount / Math.pow(10, 18)
+      const amount = ethers.utils.parseEther((ethAmount).toString());
       await bidMoney(amount)
       const response = await fetch('http://localhost:5001/api/loan/bid', {
         method: 'POST',
@@ -65,8 +67,8 @@ export default function Bidding() {
         },
         body: JSON.stringify({
           loanIndex: Number(selectedLoan.loanId),
-           bidBy: walletAddress,
-            bid: interestRate,
+          bidBy: walletAddress,
+          bid: interestRate,
         }),
       });
 
@@ -102,63 +104,87 @@ export default function Bidding() {
         placeholder="Search loans..."
         value={searchTerm}
         onChange={handleSearch}
-        className="mb-6"
+        className="mb-6 p-5 border border-black"
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLoans.length > 0 ? (
-          filteredLoans.map((loan , index) => (
-            <Card key={index}>
-              <CardHeader>
-                <CardTitle>{loan.loanType} Loan</CardTitle>
-                <CardDescription>{loan.requester}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Convert BigNumber amount to string */}
-                <p className="font-semibold mb-2">{loan.amount/Math.pow(10,18)}ETH</p>
-                <p className="text-sm mb-2">{loan.description}</p>
-                <Badge className=' p-2' >
-                  Strikes: 1
-                </Badge>
-              </CardContent>
-              <CardFooter>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => handleBid(loan)} className=' w-full' >Bid</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Place a Bid</DialogTitle>
-                      <DialogDescription>
-                        Enter the interest rate you want to offer for this loan.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="interest-rate" className="text-right">
-                          Interest Rate (%)
-                        </Label>
-                        <Input
-                          id="interest-rate"
-                          type="number"
-                          step="0.1"
-                          value={interestRate}
-                          onChange={(e) => setInterestRate(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-64 ">
+          {filteredLoans.length > 0 ? (
+            filteredLoans.map((loan, index) => (
+              <Card key={index} className=' ' >
+                <CardHeader>
+                  <CardTitle className=' py-2'>
+                    {loan.typeOfLoan === 1 && <span> Personal </span>}
+                    {loan.typeOfLoan === 2 && <span>Business </span>}
+                    {loan.typeOfLoan === 3 && <span>Student </span>}
+                    Loan
+                  </CardTitle>
+                  <CardDescription>{loan.requester}</CardDescription>
+                </CardHeader>
+                <CardContent className=' flex justify-between align-bottom items-end mb-[-10px]'>
+                  <div  className=' dark:bg-inherit bg-slate-200 w-[72%]  p-2  rounded-xl'> 
+
+                    {/* Convert BigNumber amount to string */}
+                    <p className="font-semibold mb-2">{loan.amount / Math.pow(10, 18)}ETH</p>
+                    <p className="text-sm mb-2">{loan.description.length > 20 ? `${loan.description.slice(0, 20)}...${loan.description.slice(-10)}`
+                      : loan.description}
+                    </p>
+                    <div className=' flex justify-between'>
+                      <Badge className=' p-2' >
+                        Strikes: 1
+                      </Badge>
+
                     </div>
-                    <DialogFooter>
-                      <Button onClick={submitBid}>Submit Bid</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <p>No loans found matching your criteria.</p>
-        )}
+                  </div>
+
+                  <div>
+                    <Badge className=' p-2 mb-2 flex gap-1 dark:bg-green-600 ' >
+                    <ArrowBigUp className=' h-5 w-5 dark:bg bg-green-600 rounded-sm' />
+                      Bids: 1
+                    </Badge>
+                  </div>
+
+                </CardContent>
+                <CardFooter>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => handleBid(loan)} className=' w-full ' >Bid</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Place a Bid</DialogTitle>
+                        <DialogDescription>
+                          Enter the interest rate you want to offer for this loan.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="interest-rate" className="text-right">
+                            Interest Rate (%)
+                          </Label>
+                          <Input
+                            id="interest-rate"
+                            type="number"
+                            step="0.1"
+                            value={interestRate}
+                            onChange={(e) => setInterestRate(e.target.value)}
+                            className="col-span-3"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button onClick={submitBid}>Submit Bid</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <p>No loans found matching your criteria.</p>
+          )}
+        </div>
       </div>
+
     </motion.div>
   )
 }
