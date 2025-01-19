@@ -108,22 +108,22 @@ function CommunityCard({
 
   }), [contract, provider, walletAddress];
   return (
-    <Card className="w-full max-w-[30rem] mx-auto dark:bg-black bg-white shadow-md rounded-lg overflow-hidden">
+    <Card className="w-full max-w-[470px] mx-auto dark:bg-black/80 bg-white shadow-md rounded-lg overflow-hidden">
       <CardHeader className="p-4">
         <CardTitle className="text-xl font-semibold">{community.name}</CardTitle>
       </CardHeader>
       <CardContent className="p-4 ">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Available Funds:</span>
+            <span className="text-sm dark:text-white text-gray-600">Available Funds:</span>
             <span className="font-semibold text-lg">{(balance / Math.pow(10, 18))?.toLocaleString()} ETH</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Members:</span>
+            <span className="text-sm  dark:text-white text-gray-600">Members:</span>
             <span className="font-semibold text-lg">{community?.owners?.length}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Interest Rate:</span>
+            <span className="text-sm  dark:text-white text-gray-600">Interest Rate:</span>
             <span className="font-semibold text-lg">{interestRate?.toString()}%</span>
           </div>
         </div>
@@ -131,22 +131,22 @@ function CommunityCard({
         {/* Show details only if 'showDetails' is true */}
         {showDetails && joined && (
           <div className="fixed inset-0 z-50 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="relative w-full max-w-xl bg-white p-6 rounded-lg shadow-lg">
+            <div className="relative w-full max-w-xl dark:bg-black bg-white p-6 rounded-lg shadow-lg">
               {/* Close Button */}
               <button
                 onClick={() => setShowDetails(false)}
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
                 aria-label="Close details"
               >
-                <Plus className=" rotate-45" />
+                <Plus className=" dark:text-white rotate-45" />
               </button>
 
               <h4 className="font-semibold mb-3">Active Loan Requests</h4>
               <div className="space-y-4">
                 {loanRequests.filter(loan => !loan.executed).map((loan) => (
-                  <Card key={loan._id} className="bg-gray-50 p-4 shadow-sm rounded-lg">
-                    <p className="text-sm text-gray-700 mb-2">Requestor: {loan.to}</p>
-                    <p className="text-sm text-gray-500 mb-2">Reason: {loan.reason}</p>
+                  <Card key={loan._id} className="bg-gray-50 p-4 shadow-sm dark:bg-inherit rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-white mb-2">Requestor: {loan.to}</p>
+                    <p className="text-sm text-gray-500 dark:text-white  mb-2">Reason: {loan.reason}</p>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-sm font-semibold">Amount: {loan.amount} ETH</span>
                       <Badge variant="secondary" className="px-2 py-1 text-xs">
@@ -154,7 +154,7 @@ function CommunityCard({
                       </Badge>
                     </div>
                     <Progress value={(loan.signatures.length / requiredSignatures) * 100} className="mb-3" />
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex gap-2 mt-3 ">
                       {walletAddress.toLowerCase() === loan.to.toLowerCase() ? (
                         <Button
                           disabled={loan.signatures.length < requiredSignatures}
