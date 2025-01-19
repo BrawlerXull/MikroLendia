@@ -52,6 +52,7 @@ export function LoanCard({
           Loan
         </CardTitle>
         <CardDescription>{loan.requester}</CardDescription>
+
         <div className=" flex justify-between pt-2" >
           <p className="font-semibold ">
             {userDetails?.name}
