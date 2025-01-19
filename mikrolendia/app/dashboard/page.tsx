@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import useLoanContract from "@/lib/hooks/useLoanContract";
 import { Loan } from "@/types/type";
 import { useAppSelector } from "@/lib/hooks/useAppSelector";
+import { Button } from "@/components/ui/button";
 
 const DUMMY_BIDS = [
   {
@@ -70,7 +71,7 @@ const DUMMY_TRANSACTIONS = [
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { approveLoan } = useLoanContract();
+  const { approveLoan, loanData, repayLoan } = useLoanContract();
 
   const [userLoanData, setUserLoanData] = useState<Loan[]>([]);
   const { walletAddress } = useAppSelector((state) => state.wallet);
@@ -88,25 +89,40 @@ export default function Dashboard() {
       );
 
       const lund = await response.json();
+      // console.log(lund)
       console.log(lund);
+
       setUserLoanData(lund);
     }
 
     fetchData();
   }, [walletAddress]);
+  useEffect(()=>console.log(userLoanData),[userLoanData])
 
   console.log(activeTab);
   const approve = async (loan: Loan, bid: any) => {
     try {
       let address = [];
       address = loan.bids.map((bid: any) => bid.bidBy)
+      let bidNumber:number=0
+      for(let i =0;i<loan.bids.length;i++){
+        if(loan.bids[i]._id==bid._id){
+          break
+        }
+        bid++;
+      }
       console.log(address)
-      await approveLoan(loan.loanIndex, bid.interest, bid.bidBy, address)
+      await approveLoan(loan.loanIndex,loan, bid.interest, bid.bidBy, address, bidNumber)
 
     } catch (err) {
       console.log(err)
     }
 
+  }
+  const convertToDate=(time: number)=>{
+    console.log(Number(time))
+    const date=new Date(Number(time)*1000)
+    return date.toString()
   }
   return (
     <motion.div
@@ -119,36 +135,7 @@ export default function Dashboard() {
       <div className=" flex justify-between">
 
         <div>
-          <div className=" w-[70%] text-xl p-2 ">
-            <div className=" flex gap-3">
-              <Card className="  min-w-80 ">
-                <CardHeader>
-                  <CardTitle>Total Balance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">$10,500</p>
-                </CardContent>
-              </Card>
-              <Card className="  min-w-80 ">
-                <CardHeader>
-                  <CardTitle>Active Loans</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">3</p>
-                </CardContent>
-              </Card>
-              <Card className="  min-w-56 ">
-                <CardHeader>
-                  <CardTitle>Total Earnings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">$1,200</p>
-                </CardContent>
-              </Card>
-
-
-            </div>
-          </div>
+          
           <Tabs
             defaultValue="overview"
             className="space-y-4"
@@ -157,7 +144,7 @@ export default function Dashboard() {
             <TabsList>
               {/* <TabsTrigger value="overview">Overview</TabsTrigger> */}
               <TabsTrigger value="requested-loans">Requested Loans</TabsTrigger>
-              <TabsTrigger value="my-bids">My Bids</TabsTrigger>
+              {/* <TabsTrigger value="my-bids">My Bids</TabsTrigger> */}
               <TabsTrigger value="approved-loans">Approved Loans</TabsTrigger>
 
               {/* <TabsTrigger value="approved-loands">My Loans</TabsTrigger> */}
@@ -169,7 +156,7 @@ export default function Dashboard() {
 
             <TabsContent value="requested-loans">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {userLoanData.map((loan, index) => (
+                {userLoanData.filter(loan=>loan.status=="pending").map((loan, index) => (
                   <Card key={Number(index)} className="w-full">
                     <CardHeader>
                       <CardTitle>{loan.description} Loan</CardTitle>
@@ -188,10 +175,10 @@ export default function Dashboard() {
                                   <h1>{bid.bidBy}</h1>
                                 </td>
                                 <td>
-                                  <button onClick={() => approve(loan, bid)} className="bg-cyan-950 hover:bg-cyan-600 transition-all p-2 rounded-lg">
+                                  <Button onClick={() => approve(loan, bid)} className="bg-cyan-950 hover:bg-cyan-600 transition-all p-2 rounded-lg">
 
                                     Accept bid
-                                  </button>
+                                  </Button>
                                 </td>
                               </tr>
                             );
@@ -209,41 +196,50 @@ export default function Dashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value="my-bids" className=" w-[100%]  p-2">
+            <TabsContent value="approved-loans" className=" w-[100%]  p-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {DUMMY_BIDS.map((bid) => (
-                  <Card key={bid.id} className="  min-w-80 ">
-                    <CardHeader className=" ">
-                      <CardTitle>{bid.loanType} Loan</CardTitle>
-                      <CardDescription>${bid.amount}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge className="mb-2">{bid.status}</Badge>
-                      <p className="text-sm mb-2">Borrower: {bid.borrower}</p>
-                      <p className="text-sm">Interest Rate: {bid.interestRate}%</p>
-                    </CardContent>
-                  </Card>
-                ))}
+                {userLoanData.filter(loan=>loan.status=="approved").map((loan) => {
+                  console.log(loan);
+                  return(
+                    <Card key={loan._id} className="  min-w-80 ">
+                      <CardHeader className=" ">
+                        <CardTitle>{loan.loan} Rs</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {loan.acceptedBid && loanData && (<div>
+                          <p>Lender: {loan.acceptedBid.bidBy}</p>
+                          <p>Interest: {loan.acceptedBid.interest}%</p>
+                          <p>Next Due Date: {convertToDate(loanData[loan.loanIndex]?.dueDate).slice(4,16)}</p>
+                          <p>Duration: {Number(loanData[loan.loanIndex]?.duration)} Months</p>
+                          <Button onClick={()=>repayLoan(loan.loanIndex, loan.totalLoanValue/Number(loanData[loan.loanIndex]?.duration))}>Repay Loan</Button>
+                        </div>)}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
             </TabsContent>
 
-            <TabsContent value="approved-loans" className=" w-[100%]  p-2">
+            {/* <TabsContent value="approved-loans" className=" w-[100%]  p-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {DUMMY_BIDS.map((bid) => (
-                  <Card key={bid.id} className="  min-w-80 ">
-                    <CardHeader className=" ">
-                      <CardTitle>{bid.loanType} Loan</CardTitle>
-                      <CardDescription>${bid.amount}</CardDescription>
+              {userLoanData.filter(loan=>loan.status==1).map((loan, index) => (
+                  <Card key={Number(index)} className="w-full">
+                    <CardHeader>
+                      <CardTitle>{loan.description} Loan</CardTitle>
+                      <CardDescription>${Number(loan.loan)}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <Badge className="mb-2">{bid.status}</Badge>
-                      <p className="text-sm mb-2">Borrower: {bid.borrower}</p>
-                      <p className="text-sm">Interest Rate: {bid.interestRate}%</p>
+                    <CardContent className="min-w-1">
+                      
+                      {loan.typeOfLoan == 0
+                        ? "Business"
+                        : loan.typeOfLoan == 1
+                          ? "Student"
+                          : "Personal"} Loan
                     </CardContent>
                   </Card>
                 ))}
               </div>
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="my-bids" className=" w-[100%]  p-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -265,7 +261,7 @@ export default function Dashboard() {
 
             <TabsContent value="transactions">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {DUMMY_TRANSACTIONS.map((transaction) => (
+                {userLoanData.filter(loan=>loan.status==1).map((transaction) => (
                   <Card key={transaction.id}>
                     <CardHeader>
                       <CardTitle>{transaction.type}</CardTitle>
@@ -284,21 +280,7 @@ export default function Dashboard() {
           </Tabs>
         </div>
 
-        <div>
-          <Card className="min-w-80 p-6 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 rounded-xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-2xl">
-            <div className="absolute top-0 right-0 p-2 bg-yellow-500 text-white rounded-bl-xl text-sm font-bold">
-              Reward
-            </div>
-            <CardHeader>
-              <CardTitle className="text-white text-3xl font-extrabold">Native Rewards</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-5xl font-extrabold text-white">+$10,500</p>
-              <div className="mt-4 text-sm text-white opacity-80">Earned through your incredible performance!</div>
-            </CardContent>
-          </Card>
-
-        </div>
+       
       </div>
 
 

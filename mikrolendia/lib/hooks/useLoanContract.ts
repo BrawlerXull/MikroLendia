@@ -4,6 +4,7 @@ import { getLoanContract } from "../contract/contract";
 import { toast } from "sonner";
 import { Loan, LoanType } from "@/types/type";
 import { useAppSelector } from "./useAppSelector";
+import axios from "axios";
 
 const useLoanContract = () => {
   const [provider, setProvider] =
@@ -42,6 +43,7 @@ const useLoanContract = () => {
       const loans = await contract.getAllLoans();
       setLoanData(loans);
       console.log("Fetched all loans:", loans);
+      return loans
     } catch (err: unknown) {
       console.log(err);
       if (err instanceof Error) {
@@ -128,7 +130,8 @@ const useLoanContract = () => {
     amount: BigNumber,
     description: string,
     loanType: LoanType,
-    duration: number
+    duration: number,
+    backendAmount: string
   ): Promise<void> => {
     if (!provider) return;
     console.log(amount)
@@ -149,6 +152,28 @@ const useLoanContract = () => {
         loanType,
         duration
       );
+      await tx.wait()
+      const loans=await fetchAllLoans();
+      console.log(loans)
+      const response = await fetch('http://localhost:5001/api/loan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address : walletAddress, // Make sure to use the actual wallet address
+          userLoan: parseFloat(backendAmount),
+          loanIndex:  loans?.length 
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log(data)
+
+      if (!response.ok) {
+        throw new Error('Failed to send data to server');
+      }
       console.log("Loan request transaction sent:", tx);
       await tx.wait();
       toast.success("Loan requested successfully.");
@@ -169,9 +194,11 @@ const useLoanContract = () => {
   // Approve a loan
   const approveLoan = async (
     loanId: number,
+    loan: Loan,
     interest: number,
     granter: string,
-    address: [string]
+    address: [string],
+    bidNumber: number
   ): Promise<void> => {
     if (!provider) return;
 
@@ -186,7 +213,7 @@ const useLoanContract = () => {
         loanId.toString(),
         18
       );
-
+      // console.log(Number)
       // Convert `interest` to BigNumber, scaling it up if necessary (e.g., if it's in ether)
       const interestBigNumber = ethers.utils.parseUnits(
         interest.toString(),
@@ -201,6 +228,7 @@ const useLoanContract = () => {
       );
       console.log("Loan approval transaction sent:", tx);
       await tx.wait();
+      const res=await axios.post('http://localhost:5001/api/loan/approve', {loanId: loan._id, bidNumber})
       toast.success("Loan approved successfully.");
       fetchAllLoans();
     } catch (err: unknown) {
@@ -300,7 +328,8 @@ const useLoanContract = () => {
     bidMoney,
     addCommunityLoan,
     approvedLoans,
-    fetchApprovedLoans
+    fetchApprovedLoans,
+    fetchAllLoans,
   };
 };
 

@@ -79,13 +79,12 @@ contract LoanContract {
     ) public payable {
         LoanStruct storage loan = Loans[_loanId];
         require(loan.status == Status.pending, "Loan is not pending");
-        require(loan.amount > 0, "Loan amount must be greater than zero");
         require(address(this).balance > loan.amount, "Insufficient balance");
         loan.status = Status.accepted;
         loan.granter = _granter;
         loan.interest = _interest;
         loan.dueDate = block.timestamp + 30 days;
-
+// 0x04db6f01e9c74f90
         (bool success, ) = payable(loan.requester).call{value: loan.amount}("");
         for (uint i = 0; i < _bidderAddresses.length; i++) {
             address bidder = _bidderAddresses[i];

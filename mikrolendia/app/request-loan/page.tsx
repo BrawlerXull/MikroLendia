@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,12 +27,12 @@ export default function RequestLoan() {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState('');
-  const {loanData} = useLoanContract();
 
   const { walletAddress } = useAppSelector((state) => state.wallet)
   
 
-  const { requestLoan, creatingLoan } = useLoanContract();
+  const { requestLoan, creatingLoan, loanData, fetchAllLoans, isLoading } = useLoanContract();
+  useEffect(()=>{fetchAllLoans()}, [])
   async function getEthPriceInINR() {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
@@ -44,6 +44,7 @@ export default function RequestLoan() {
     }
   }
   const handleSubmit = async (e: React.FormEvent) => {
+    if(!loanData) return alert("Not initialized")
     e.preventDefault();
 
     if (!loanType || !amount || !description || !duration) {
@@ -59,33 +60,17 @@ export default function RequestLoan() {
       const ethAmount = parseFloat(amount) / ethPriceInINR;
       const loanAmount=ethers.utils.parseUnits(ethAmount.toString())
       console.log(loanAmount)
+      console.log(loanData)
       await requestLoan(
         loanAmount,
         description,        
         loanEnum,           
-        parseInt(duration)  
+        parseInt(duration),
+        amount
       );
 
       // Send the data to your local server at localhost:5000
-      const response = await fetch('http://localhost:5001/api/loan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          address : walletAddress, // Make sure to use the actual wallet address
-          userLoan: parseFloat(amount),
-          loanIndex:  loanData.length 
-        }),
-      });
-
-      const lund = await response.json();
-
-      console.log(lund)
-
-      if (!response.ok) {
-        throw new Error('Failed to send data to server');
-      }
+      
 
       // Redirect to the bidding page on success
       // router.push('/bidding');
@@ -234,7 +219,7 @@ export default function RequestLoan() {
         </CardContent>
 
         <CardFooter>
-        <Button type="submit" className="w-full" disabled={creatingLoan}>
+        <Button type="submit" className="w-full" disabled={creatingLoan }>
           {creatingLoan ? 'Requesting Loan...' : 'Submit Loan Request'}
         </Button>
         </CardFooter>

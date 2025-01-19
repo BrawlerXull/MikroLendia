@@ -35,6 +35,7 @@ enum Status {
 
 
 export interface Loan {
+  _id: string
   loanIndex: any;
   bids: any;
   loan: any;
