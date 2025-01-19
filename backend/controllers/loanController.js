@@ -13,7 +13,7 @@ function adjustPriceBasedOnDemandSupply(loan, buyDemand) {
 
 exports.getUserLoans = async (req, res) => {
   const { address } = req.params;
-  const userLoans = await Loan.find({ address: address, status: "pending" });
+  const userLoans = await Loan.find({ address: address });
   res.json(userLoans);
 };
 
@@ -41,7 +41,8 @@ exports.setLoan = async (req, res) => {
   try {
     console.log(req.body);
     const { address, userLoan, loanIndex } = req.body;
-
+    const loans=await Loan.find({});
+    console.log(loans)
     const newLoan = new Loan({
       address: address,
       loan: userLoan,
@@ -50,7 +51,7 @@ exports.setLoan = async (req, res) => {
       returnOnLoan: 0,
       totalLoanValue: userLoan,
       bids: [],
-      loanIndex: loanIndex,
+      loanIndex: loans.length,
     });
 
     await newLoan.save();

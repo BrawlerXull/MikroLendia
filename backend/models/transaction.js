@@ -9,13 +9,13 @@ const txnSchema = new mongoose.Schema({
   signatures: {
     type: [ {address: String, signature: String} ]
   },
-  requiredSignatures: {
-    type: Number,
-    required: true
-  },
   to: {
     type: String,
     required: true,
+  },
+  reason:{
+    type: String,
+    required:true
   },
   txHash: {
     type: String,
@@ -24,8 +24,7 @@ const txnSchema = new mongoose.Schema({
   executed: {
     type: Boolean,
   },
-  status: { type: String, enum: ["Pending", "Complete"], default: "Pending" },
 })
 
 const Transaction= mongoose.model("Transaction", txnSchema);
-module.export=Transaction
+module.exports=Transaction

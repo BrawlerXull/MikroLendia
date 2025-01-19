@@ -8,15 +8,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { LoanCard } from '@/components/ui/loanCard'
 import useLoanContract from '@/lib/hooks/useLoanContract'
 import { Loan } from '@/types/type'
 import { useAppSelector } from '@/lib/hooks/useAppSelector'
 import { ethers } from 'ethers'
-
-
+import useUserContract from '@/lib/hooks/useUserContract'
+import { ArrowBigUp } from 'lucide-react'
 
 export default function Bidding() {
-  const { loanData, isLoading, error, bidMoney } = useLoanContract()  // Get loan data from the custom hook
+  const { loanData, isLoading, error, bidMoney } = useLoanContract()  
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredLoans, setFilteredLoans] = useState<Loan[]>(loanData)  // Ensure this matches the correct type
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
@@ -26,23 +27,14 @@ export default function Bidding() {
   // Watch for changes in searchTerm or loanData
   useEffect(() => {
     setFilteredLoans(
-      loanData.filter((loan) => 
+      loanData.filter((loan) =>
 
         loan?.requester?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         loan?.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
   }, [searchTerm, loanData])
-  async function getEthPriceInINR() {
-    try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr');
-      const data = await response.json();
-      return data.ethereum.inr; // Return the ETH price in INR
-    } catch (error) {
-      console.error('Error fetching ETH price:', error);
-      throw new Error('Unable to fetch ETH price');
-    }
-  }
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase()
     setSearchTerm(term)
@@ -55,8 +47,8 @@ export default function Bidding() {
   const submitBid = async () => {
     if (selectedLoan && interestRate && walletAddress) {
       // Convert INR amount to ETH
-      const ethAmount = selectedLoan.amount/Math.pow(10,18)
-      const amount=ethers.utils.parseEther((ethAmount).toString());
+      const ethAmount = selectedLoan.amount / Math.pow(10, 18)
+      const amount = ethers.utils.parseEther((ethAmount).toString());
       await bidMoney(amount)
       const response = await fetch('http://localhost:5001/api/loan/bid', {
         method: 'POST',
@@ -65,8 +57,8 @@ export default function Bidding() {
         },
         body: JSON.stringify({
           loanIndex: Number(selectedLoan.loanId),
-           bidBy: walletAddress,
-            bid: interestRate,
+          bidBy: walletAddress,
+          bid: interestRate,
         }),
       });
 
@@ -102,63 +94,62 @@ export default function Bidding() {
         placeholder="Search loans..."
         value={searchTerm}
         onChange={handleSearch}
-        className="mb-6"
+        className="mb-6 p-5 border border-black"
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLoans.length > 0 ? (
-          filteredLoans.map((loan , index) => (
-            <Card key={index}>
-              <CardHeader>
-                <CardTitle>{loan.loanType} Loan</CardTitle>
-                <CardDescription>{loan.requester}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Convert BigNumber amount to string */}
-                <p className="font-semibold mb-2">{loan.amount/Math.pow(10,18)}ETH</p>
-                <p className="text-sm mb-2">{loan.description}</p>
-                <Badge >
-                  Strikes: 1
-                </Badge>
-              </CardContent>
-              <CardFooter>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => handleBid(loan)}>Bid</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Place a Bid</DialogTitle>
-                      <DialogDescription>
-                        Enter the interest rate you want to offer for this loan.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="interest-rate" className="text-right">
-                          Interest Rate (%)
-                        </Label>
-                        <Input
-                          id="interest-rate"
-                          type="number"
-                          step="0.1"
-                          value={interestRate}
-                          onChange={(e) => setInterestRate(e.target.value)}
-                          className="col-span-3"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={submitBid}>Submit Bid</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <p>No loans found matching your criteria.</p>
-        )}
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-64 ">
+          {filteredLoans.length > 0 ? (
+            filteredLoans.map((loan, index) => (
+              <LoanCard
+                key={index}
+                index={index}
+                loan={loan}
+                handleBid={handleBid}
+              />
+            ))
+          ) : (
+            <p>No loans found matching your criteria.</p>
+          )}
+        </div>
       </div>
+
+      {/* Submit Bid Dialog */}
+      <Dialog open={!!selectedLoan} onOpenChange={(open) => { if (!open) setSelectedLoan(null) }}>
+        <DialogTrigger asChild>
+          <Button onClick={() => {}} className="hidden"></Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit Your Bid</DialogTitle>
+            <DialogDescription>Enter the interest rate to submit your bid for this loan.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedLoan && (
+              <>
+                <p className="text-lg font-semibold">Loan Amount: {selectedLoan.amount / Math.pow(10, 18)} ETH</p>
+                <Label htmlFor="interest-rate">Interest Rate (%)</Label>
+                <Input
+                  id="interest-rate"
+                  type="number"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                  placeholder="Enter your interest rate"
+                />
+              </>
+            )}
+          </div>
+          <DialogFooter className=' flex items-center '>
+            <Button
+              onClick={submitBid}
+              disabled={!interestRate || !selectedLoan}
+              className=' w-full bg-black'
+            >
+              Submit Bid
+            </Button>
+         
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }

@@ -1,26 +1,24 @@
 export type Community = {
-  id: number;
   name: string;
-  description: string;
-  funds: number;
-  members: number;
-  joined: boolean;
-  interestRate: number;
   contractAddress: string;
   owners: [string];
 };
 
 export type LoanRequest = {
-  id: number;
-  title: string;
+  _id: string;
+  reason: string;
   amount: number;
   description: string;
-  approvals: number;
-  totalVotes: number;
-  requestor: string;
-  communityId: number;
+  signatures: signature[];
+  from: string;
+  to: string;
+  executed: boolean
 };
-
+export type signature={
+  _id: string,
+  address: string,
+  signature: string
+}
 export enum LoanType {
   personal = 0,
   business = 1,
@@ -37,6 +35,7 @@ enum Status {
 
 
 export interface Loan {
+  _id: string
   loanIndex: any;
   bids: any;
   loan: any;

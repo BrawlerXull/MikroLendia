@@ -3,18 +3,30 @@ const Transaction=require('../models/transaction')
 exports.addTxn = async (req, res) => {
     console.log('yayay')
     try {
-        const { amount, from, signature, to, requiredSignatures } = req.body;
-        console.log(requiredSignatures)
-        console.log(from)
-        const reqsig=+requiredSignatures
-        const txn = new Transaction({ amount, from, to,  requiredSignatures:reqsig })
+        const { amount, from, to , reason} = req.body;
+        const txn = new Transaction({ amount, from, to,  reason })
         await txn.save();
         res.status(201).send("Transaction created successfully");
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message })
     }
-};
+}; 
+
+
+exports.createCommunity = async (req, res) => {
+  console.log('yayay')
+  try {
+      const { amount, from, to, reason } = req.body;
+      console.log(from)
+      const txn = new Transaction({ amount, from, to, reason })
+      await txn.save();
+      res.status(201).send("community created successfully");
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: error.message })
+  }
+}; 
 
 exports.getAllTxn = async (req, res) => {
     console.log(req.body);

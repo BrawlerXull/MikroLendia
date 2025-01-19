@@ -4,12 +4,14 @@ import { getLoanContract } from "../contract/contract";
 import { toast } from "sonner";
 import { Loan, LoanType } from "@/types/type";
 import { useAppSelector } from "./useAppSelector";
+import axios from "axios";
 
 const useLoanContract = () => {
   const [provider, setProvider] =
     useState<ethers.providers.Web3Provider | null>(null);
   const [loanData, setLoanData] = useState<Loan[]>([]);
   const [userLoanData, setUserLoanData] = useState<Loan[]>([]);
+  const [approvedLoans, setApprovedLoans]=useState<Loan[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [creatingLoan, setCreatingLoan] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +41,33 @@ const useLoanContract = () => {
       const contract = getLoanContract(provider);
       console.log(contract);
       const loans = await contract.getAllLoans();
-      console.log(loans);
-      const loanCount = loans.length;
-      console.log(loanCount);
-      console.log(loans);
+      setLoanData(loans);
+      console.log("Fetched all loans:", loans);
+      return loans
+    } catch (err: unknown) {
+      console.log(err);
+      if (err instanceof Error) {
+        console.error("Error fetching loans:", err.message);
+        setError("Failed to fetch loan data");
+      } else {
+        console.error("Unknown error fetching loans", err);
+        setError("An unexpected error occurred");
+      }
+      toast.error("An error occurred while fetching the loans.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [provider]);
+  const fetchApprovedLoans = useCallback(async () => {
+    if (!provider || !walletAddress) return;
+    console.log("yayay");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const contract = getLoanContract(provider);
+      console.log(contract);
+      const loans = await contract.getUserApprovedLoans(walletAddress);
       setLoanData(loans);
       console.log("Fetched all loans:", loans);
     } catch (err: unknown) {
@@ -75,7 +100,7 @@ const useLoanContract = () => {
       const loanCount = loans.length;
       console.log(loanCount);
       console.log(loans);
-      setUserLoanData(loans);
+      setApprovedLoans(loans);
       console.log("Fetched all user loans:", loans);
     } catch (err: unknown) {
       console.log(err);
@@ -96,6 +121,7 @@ const useLoanContract = () => {
     if (provider) {
       console.log("fetching");
       fetchAllLoans();
+      fetchApprovedLoans();
       fetchUserAllLoans();
     }
   }, [fetchAllLoans, fetchUserAllLoans, provider]);
@@ -104,7 +130,8 @@ const useLoanContract = () => {
     amount: BigNumber,
     description: string,
     loanType: LoanType,
-    duration: number
+    duration: number,
+    backendAmount: string
   ): Promise<void> => {
     if (!provider) return;
     console.log(amount)
@@ -115,12 +142,38 @@ const useLoanContract = () => {
     const contractWithSigner = contract.connect(signer);
 
     try {
+      const gas=await contractWithSigner.estimateGas.requestLoan(amount,
+        description,
+        loanType,
+        duration)
       const tx = await contractWithSigner.requestLoan(
         amount,
         description,
         loanType,
         duration
       );
+      await tx.wait()
+      const loans=await fetchAllLoans();
+      console.log(loans)
+      const response = await fetch('http://localhost:5001/api/loan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address : walletAddress, // Make sure to use the actual wallet address
+          userLoan: parseFloat(backendAmount),
+          loanIndex:  loans?.length 
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log(data)
+
+      if (!response.ok) {
+        throw new Error('Failed to send data to server');
+      }
       console.log("Loan request transaction sent:", tx);
       await tx.wait();
       toast.success("Loan requested successfully.");
@@ -141,9 +194,11 @@ const useLoanContract = () => {
   // Approve a loan
   const approveLoan = async (
     loanId: number,
+    loan: Loan,
     interest: number,
     granter: string,
-    address: [string]
+    address: [string],
+    bidNumber: number
   ): Promise<void> => {
     if (!provider) return;
 
@@ -158,7 +213,7 @@ const useLoanContract = () => {
         loanId.toString(),
         18
       );
-
+      // console.log(Number)
       // Convert `interest` to BigNumber, scaling it up if necessary (e.g., if it's in ether)
       const interestBigNumber = ethers.utils.parseUnits(
         interest.toString(),
@@ -173,6 +228,7 @@ const useLoanContract = () => {
       );
       console.log("Loan approval transaction sent:", tx);
       await tx.wait();
+      const res=await axios.post('http://localhost:5001/api/loan/approve', {loanId: loan._id, bidNumber})
       toast.success("Loan approved successfully.");
       fetchAllLoans();
     } catch (err: unknown) {
@@ -270,7 +326,10 @@ const useLoanContract = () => {
     repayLoan,
     error,
     bidMoney,
-    addCommunityLoan
+    addCommunityLoan,
+    approvedLoans,
+    fetchApprovedLoans,
+    fetchAllLoans,
   };
 };
 

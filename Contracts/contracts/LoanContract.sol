@@ -79,13 +79,12 @@ contract LoanContract {
     ) public payable {
         LoanStruct storage loan = Loans[_loanId];
         require(loan.status == Status.pending, "Loan is not pending");
-        require(loan.amount > 0, "Loan amount must be greater than zero");
         require(address(this).balance > loan.amount, "Insufficient balance");
         loan.status = Status.accepted;
         loan.granter = _granter;
         loan.interest = _interest;
         loan.dueDate = block.timestamp + 30 days;
-
+// 0x04db6f01e9c74f90
         (bool success, ) = payable(loan.requester).call{value: loan.amount}("");
         for (uint i = 0; i < _bidderAddresses.length; i++) {
             address bidder = _bidderAddresses[i];
@@ -121,9 +120,6 @@ contract LoanContract {
 
     
     function addCommunityLoan(uint256 amount, uint256 interest, address payable _community) public{
-        Community community=Community(_community);
-        require(community.isOwner(msg.sender), "You are not a part of this community");
-        require(address(community).balance>=amount,"You har community does not have enough balance to request this loan");
         LoanStruct storage newLoan = Loans[totalLoans];
         newLoan.requester=msg.sender;
         newLoan.loanId = totalLoans;

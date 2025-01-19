@@ -1,11 +1,11 @@
 const express = require('express');
-const { addTxn, executeTransaction, getAllTxn, signTxn } = require("../controllers/transactionController.js");
+const { addTxn, executeTransaction, getAllTxn, signTxn, createCommunity } = require("../controllers/transactionController.js");
 
 const router = express.Router();
 
 router.post("/", getAllTxn);
-router.post("/add-transaction", addTxn);
-router.post("/sign-transaction", signTxn);
-router.post("/execute-transaction", executeTransaction);
+router.post("/add", addTxn);
+router.post("/sign", signTxn);
+router.post("/execute", executeTransaction);
 
 module.exports=router

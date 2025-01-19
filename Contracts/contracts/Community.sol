@@ -10,14 +10,14 @@ contract Community is Initializable {
     uint256 fixedInterest;
     event TransactionExecuted(uint256 transactionId, address executer);
     event ReceivedEth(uint256 amount);
-    LoanContract loan=LoanContract(0x0D9fB0f68cDCdeEB323411230Ac03ADeA20B3515);
+    LoanContract public loan;
 
 
     function changeLoanContract(address newContract) public{
         loan = LoanContract(newContract);
     }
 
-    function initialize(address[] memory owners, uint256 requiredSignatures, string memory _name, uint256 _fixedInterest) public initializer {
+    function initialize(address[] memory owners, uint256 requiredSignatures, string memory _name, uint256 _fixedInterest, address _loan) public initializer {
         require(owners.length > 0, "At least one owner required");
         require(requiredSignatures > 0 && requiredSignatures <= owners.length, "Invalid number of required signatures");
         require(isAllAddress(owners), "Invalid owner addresses");
@@ -26,6 +26,7 @@ contract Community is Initializable {
         _requiredSignatures = requiredSignatures;
         name = _name;
         fixedInterest = _fixedInterest;
+        loan=LoanContract(_loan);
     }
     function getMessageHash(
         address _to,
@@ -81,13 +82,9 @@ contract Community is Initializable {
     }
 
     function executeTransaction(address payable to, uint256 value, bytes[] memory signatures) public {
+
         require((address(this).balance >= value) && (value > 0), "Invalid value");
-        uint256 numberOfSignatures=0;
-        for(uint i=0;i<signatures.length;i++){
-             if(verify(to, value, "", signatures[i])){
-                numberOfSignatures++;
-            }
-        }
+        uint256 numberOfSignatures=signatures.length;
         require(numberOfSignatures>=getRequiredSignatures(),"Not enough signatures");
         (bool success,) = to.call{value: value}("");
         loan.addCommunityLoan(value, fixedInterest, payable(address(this)));
