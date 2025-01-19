@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import useLoanContract from "@/lib/hooks/useLoanContract";
 import { Loan } from "@/types/type";
 import { useAppSelector } from "@/lib/hooks/useAppSelector";
+import axios from "axios";
 
 const DUMMY_BIDS = [
   {
@@ -108,6 +109,28 @@ export default function Dashboard() {
     }
 
   }
+
+  const [ethPrice, setEthPrice] = useState(null);
+
+  useEffect(() => {
+    const fetchEthPrice = async () => {
+      try {
+        const response = await axios.get(
+          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+        );
+        setEthPrice(response.data.ethereum.usd);
+      } catch (error) {
+        console.error('Error fetching Ethereum price', error);
+      }
+    };
+
+    fetchEthPrice();
+    const interval = setInterval(fetchEthPrice, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -245,7 +268,7 @@ export default function Dashboard() {
               </div>
             </TabsContent>
 
-        
+
 
             <TabsContent value="transactions">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -277,8 +300,46 @@ export default function Dashboard() {
               <CardTitle className="text-white text-3xl font-extrabold">Native Rewards</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-5xl font-extrabold text-white">+$10,500</p>
-              <div className="mt-4 text-sm text-white opacity-80">Earned through your incredible performance!</div>
+              {ethPrice ? (
+                <>
+                  <p className="text-5xl font-extrabold text-white">+${ethPrice.toLocaleString()}</p>
+                  <div className="mt-4 text-sm text-white opacity-80">Earned through your incredible performance!</div>
+                </>
+              ) : (
+                <p className="text-5xl font-extrabold text-white">Loading...</p>
+              )}
+            </CardContent>
+            <div className="absolute top-0 right-0 p-2 bg-yellow-500 text-white rounded-bl-xl text-sm font-bold">
+              Reward
+            </div>
+            <CardHeader>
+              <CardTitle className="text-white text-3xl font-extrabold">Native Rewards</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {ethPrice ? (
+                <>
+                  <p className="text-5xl font-extrabold text-white">+${ethPrice.toLocaleString()}</p>
+                  <div className="mt-4 text-sm text-white opacity-80">Earned through your incredible performance!</div>
+                </>
+              ) : (
+                <p className="text-5xl font-extrabold text-white">Loading...</p>
+              )}
+            </CardContent>
+            <div className="absolute top-0 right-0 p-2 bg-yellow-500 text-white rounded-bl-xl text-sm font-bold">
+              Reward
+            </div>
+            <CardHeader>
+              <CardTitle className="text-white text-3xl font-extrabold">Native Rewards</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {ethPrice ? (
+                <>
+                  <p className="text-5xl font-extrabold text-white">+${ethPrice.toLocaleString()}</p>
+                  <div className="mt-4 text-sm text-white opacity-80">Earned through your incredible performance!</div>
+                </>
+              ) : (
+                <p className="text-5xl font-extrabold text-white">Loading...</p>
+              )}
             </CardContent>
           </Card>
 

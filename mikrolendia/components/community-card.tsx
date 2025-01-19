@@ -108,7 +108,7 @@ function CommunityCard({
 
   }), [contract, provider, walletAddress];
   return (
-    <Card className="w-full max-w-[470px] mx-auto dark:bg-black/80 bg-white shadow-md rounded-lg overflow-hidden">
+<Card className="w-full max-w-[470px] mx-auto dark:bg-black/80 bg-white shadow-md rounded-lg overflow-hidden">
       <CardHeader className="p-4">
         <CardTitle className="text-xl font-semibold">{community.name}</CardTitle>
       </CardHeader>
@@ -269,7 +269,7 @@ function CommunityCard({
               />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button type="submit" className=" w-full" >
                 Submit Loan Request
               </Button>
             </DialogFooter>

@@ -78,7 +78,7 @@ export function Navbar({
 
   return (
     <motion.nav 
-      className="sticky top-0 z-40 w-full backdrop-blur"
+      className="sticky top-0 z-40 w-full backdrop-blur py-3"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
