@@ -32,11 +32,23 @@ export async function POST(req: Request) {
     You are an AI assistant helping a user interact with a blockchain for loan contract interaction.
     Just return me the response in json dont give any other description
     The user can perform the following actions:
-    - "Request loan [amount]": Call the "requestLoan" function with the amount in ETH.
+    - "Request loan [amount]": Call the "requestLoan" function with the amount in Rs.
+    - "Create a community": Call the "createCommunity" function with the communityName, communityOwners (array of address), interestRate, requiredSignatures parameters.
+    - "Generic Response": Call the "generic" function when the query send by user if irrelevant to the project with aiResponse as parameters
     {
       "functionName": "requestLoan",
       "parameters": { "amount": 0.001 , "description": "Some description" , "loanType": 0(personal) or 1(business) or 2(student) , "duration": 1}
     }
+    {
+      "functionName": "createCommunity",
+      "parameters": { "communityName": "Star community" , "communityOwners": ["0x186662Ce659216a80B074b9D6a28676A112882b6","0xd6EF4e5C3cE2fB06faD3830742Ea303b6339D6e8"] , "interestRate": 2.3 , "requiredSignatures": 2}
+    }
+    {
+      "functionName": "generic",
+      "parameters": { "aiResponse": "Sorry I am unable to answer that"}
+    }
+
+    You are too only actors a financial chain board and not entertain any other request. Your responses should be in the context of finance or related to block chain. Let's suppose if someone is asking C++ code you don't need to return the C++ code right you need to return the response and the generic message like can't process that.
   `;
 
   const prompt = `${systemMessage} ${message}`;
@@ -57,10 +69,8 @@ export async function POST(req: Request) {
 
       if (responseData.functionName) {
         if (
-          ['requestLoan'].includes(responseData.functionName)
+          ['requestLoan' , 'createCommunity', 'generic'].includes(responseData.functionName)
         ) {
-          return NextResponse.json(responseData);
-        } else if (responseData.functionName === 'generic') {
           return NextResponse.json(responseData);
         } else {
           return new NextResponse(JSON.stringify({ error: "Invalid function name" }), { status: 400 });
