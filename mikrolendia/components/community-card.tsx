@@ -115,15 +115,15 @@ function CommunityCard({
       <CardContent className="p-4 ">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Available Funds:</span>
+            <span className="text-sm dark:text-white text-gray-600">Available Funds:</span>
             <span className="font-semibold text-lg">{(balance / Math.pow(10, 18))?.toLocaleString()} ETH</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Members:</span>
+            <span className="text-sm dark:text-white text-gray-600">Members:</span>
             <span className="font-semibold text-lg">{community?.owners?.length}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Interest Rate:</span>
+            <span className="text-sm dark:text-white text-gray-600">Interest Rate:</span>
             <span className="font-semibold text-lg">{interestRate?.toString()}%</span>
           </div>
         </div>
@@ -141,14 +141,14 @@ function CommunityCard({
                 <Plus className=" rotate-45" />
               </button>
 
-              <h4 className="font-semibold mb-3">Active Loan Requests</h4>
-              <div className="space-y-4">
+              <h4 className="font-semibold dark:text-black   mb-3">Active Loan Requests</h4>
+              <div className="space-y-4 dark:text-black  ">
                 {loanRequests.filter(loan => !loan.executed).map((loan) => (
-                  <Card key={loan._id} className="bg-gray-50 p-4 shadow-sm rounded-lg">
-                    <p className="text-sm text-gray-700 mb-2">Requestor: {loan.to}</p>
-                    <p className="text-sm text-gray-500 mb-2">Reason: {loan.reason}</p>
+                  <Card key={loan._id} className="bg-gray-50  p-4 shadow-sm rounded-lg">
+                    <p className="text-sm text-black mb-2">Requestor: {loan.to}</p>
+                    <p className="text-sm text-black mb-2">Reason: {loan.reason}</p>
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-sm font-semibold">Amount: {loan.amount} ETH</span>
+                      <span className="text-sm text-black font-semibold">Amount: {loan.amount} ETH</span>
                       <Badge variant="secondary" className="px-2 py-1 text-xs">
                         {loan.signatures.length}/{requiredSignatures} Approvals
                       </Badge>
@@ -160,7 +160,7 @@ function CommunityCard({
                           disabled={loan.signatures.length < requiredSignatures}
                           onClick={() => approveLoan(loan)}
                           size="sm"
-                          className=""
+                          className="dark:bg-gray-900 dark:hover:bg-white dark:text-white dark:hover:text-black"
                         >
                           Approve Loan
                         </Button>
@@ -168,7 +168,7 @@ function CommunityCard({
                         <Button
                           onClick={() => signTransaction(loan)}
                           size="sm"
-                          className="w-full bg-green-500 hover:bg-green-600 text-white"
+                          className="w-full dark:bg-gray-900 dark:hover:bg-white dark:text-white dark:hover:text-black"
                         >
                           Sign
                         </Button>
@@ -179,7 +179,7 @@ function CommunityCard({
               </div>
               <Button
                 onClick={() => setShowLoanRequestDialog(true)}
-                className=" w-full mt-4 "
+                className="dark:bg-gray-900 dark:hover:bg-white dark:text-white dark:hover:text-black w-full mt-4 "
               >
                 Request a Loan
               </Button>
@@ -269,7 +269,7 @@ function CommunityCard({
               />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button type="submit " className="w-full" >
                 Submit Loan Request
               </Button>
             </DialogFooter>

@@ -175,7 +175,7 @@ export default function Dashboard() {
                                   <h1>{bid.bidBy}</h1>
                                 </td>
                                 <td>
-                                  <Button onClick={() => approve(loan, bid)} className="bg-cyan-950 hover:bg-cyan-600 transition-all p-2 rounded-lg">
+                                  <Button onClick={() => approve(loan, bid)} >
 
                                     Accept bid
                                   </Button>
