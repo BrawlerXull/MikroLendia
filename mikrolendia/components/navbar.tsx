@@ -92,8 +92,8 @@ export function Navbar({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
-              <Image src="/logo.png" width={40} height={40} alt="MikroLendia Logo" />
-              <div className='ml-3'>MikroLendia</div>
+              <Image src="/logo.png" width={40} height={40} alt="Udaan Logo" />
+              <div className='ml-3'>Udaan</div>
             </motion.span>
           </Link>
         </div>

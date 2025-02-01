@@ -29,6 +29,7 @@ const useCommunity = (communityAddress: string) => {
         const signer = provider.getSigner();
         const address=await signer.getAddress()
         setUserAddress(address);
+        console.log(communityAddress)
         const communityContract = getCommunityContract(provider, communityAddress)
         const cont=await communityContract.connect(signer)
         setContract(cont);
@@ -110,6 +111,7 @@ const useCommunity = (communityAddress: string) => {
       if(!contract )return 
       if(communityAddress && provider){
         const interest=await contract.getFixedInterestRate();
+        console.log(Number(interest))
         return setInterestRate(Number(interest))
       }
     }

@@ -8,16 +8,18 @@ contract Community is Initializable {
     address[] private _owners;
     string name;
     uint256 fixedInterest;
+    mapping(address => bool) private pendingInvites;
+
     event TransactionExecuted(uint256 transactionId, address executer);
     event ReceivedEth(uint256 amount);
-    LoanContract public loan;
+    LoanContract loan=LoanContract(0x0D9fB0f68cDCdeEB323411230Ac03ADeA20B3515);
 
 
     function changeLoanContract(address newContract) public{
         loan = LoanContract(newContract);
     }
 
-    function initialize(address[] memory owners, uint256 requiredSignatures, string memory _name, uint256 _fixedInterest, address _loan) public initializer {
+    function initialize(address[] memory owners, uint256 requiredSignatures, string memory _name, uint256 _fixedInterest) public initializer {
         require(owners.length > 0, "At least one owner required");
         require(requiredSignatures > 0 && requiredSignatures <= owners.length, "Invalid number of required signatures");
         require(isAllAddress(owners), "Invalid owner addresses");
@@ -26,7 +28,6 @@ contract Community is Initializable {
         _requiredSignatures = requiredSignatures;
         name = _name;
         fixedInterest = _fixedInterest;
-        loan=LoanContract(_loan);
     }
     function getMessageHash(
         address _to,
@@ -82,9 +83,13 @@ contract Community is Initializable {
     }
 
     function executeTransaction(address payable to, uint256 value, bytes[] memory signatures) public {
-
         require((address(this).balance >= value) && (value > 0), "Invalid value");
-        uint256 numberOfSignatures=signatures.length;
+        uint256 numberOfSignatures=0;
+        for(uint i=0;i<signatures.length;i++){
+             if(verify(to, value, "", signatures[i])){
+                numberOfSignatures++;
+            }
+        }
         require(numberOfSignatures>=getRequiredSignatures(),"Not enough signatures");
         (bool success,) = to.call{value: value}("");
         loan.addCommunityLoan(value, fixedInterest, payable(address(this)));
@@ -100,7 +105,19 @@ contract Community is Initializable {
         _requiredSignatures = requiredSignatures;
     }
 
-
+    function sendInvite(address newMember) public {
+        require(isOwner(msg.sender), "Only owners can send invites");
+        require(!isOwner(newMember), "Already an owner");
+        pendingInvites[newMember] = true;
+        // emit InviteSent(newMember);
+    }
+    
+    function acceptInvite() public {
+        require(pendingInvites[msg.sender], "No pending invite");
+        pendingInvites[msg.sender] = false;
+        _owners.push(msg.sender);
+        // emit InviteAccepted(msg.sender);
+    }
     function isOwner(address account) public view returns (bool) {
         for (uint256 i = 0; i < _owners.length; i++) {
             if (_owners[i] == account) {
@@ -129,6 +146,9 @@ contract Community is Initializable {
         return true;
     }
 
+    function isInvited() public view returns(bool){
+        return pendingInvites[msg.sender];
+    }
     function fundme() public payable{
         emit ReceivedEth(msg.value);
     }

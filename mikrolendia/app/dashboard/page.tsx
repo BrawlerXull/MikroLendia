@@ -209,7 +209,7 @@ export default function Dashboard() {
                         {loan.acceptedBid && loanData && (<div>
                           <p>Lender: {loan.acceptedBid.bidBy}</p>
                           <p>Interest: {loan.acceptedBid.interest}%</p>
-                          <p>Next Due Date: {convertToDate(loanData[loan.loanIndex]?.dueDate).slice(4,16)}</p>
+                          {/* <p>Next Due Date: {convertToDate(loanData[loan.loanIndex]?.dueDate).slice(4,16)}</p> */}
                           <p>Duration: {Number(loanData[loan.loanIndex]?.duration)} Months</p>
                           <Button onClick={()=>repayLoan(loan.loanIndex, loan.totalLoanValue/Number(loanData[loan.loanIndex]?.duration))}>Repay Loan</Button>
                         </div>)}
