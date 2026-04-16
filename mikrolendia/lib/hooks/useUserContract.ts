@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'sonner';
-import { getUserContract } from '../contract/contract'; // Assuming this is where your contract is imported from
+import { getUserContract } from '../contract/contract';
 import { useAppSelector } from './useAppSelector';
+import { getSignerProvider } from '../utils/getSignerProvider';
 
-// Define a User interface based on the contract structure
 interface User {
   userId: number;
   name: string;
@@ -18,134 +18,95 @@ interface User {
 
 type ErrorType = string | null;
 
-const useUserContract = (address: string) => {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [userDetails, setUserDetails] = useState<User | null>(null); // Store user data
+// Static read-only provider — no MetaMask dependency for reads
+const READ_RPC = "http://127.0.0.1:8545";
+const readProvider = new ethers.providers.JsonRpcProvider(READ_RPC);
+
+
+const useUserContract = () => {
+  const [userDetails, setUserDetails] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<ErrorType>(null); // Handle errors
-  const {walletAddress}=useAppSelector(state=>state.wallet); 
-  // Initialize Ethereum provider
-  useEffect(() => {
-    const initProvider = async () => {
-      if (window.ethereum) {
-        console.log(address)
-        const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-        setProvider(web3Provider);
-      } else {
-        toast.error('Please install MetaMask to interact with the blockchain.');
-      }
-    };
+  const [error, setError] = useState<ErrorType>(null);
+  const { walletAddress } = useAppSelector(state => state.wallet);
 
-    initProvider();
-  }, []);
-  useEffect(()=>{
-    if(provider){
-      fetchUserDetails()
-    }
-  },[provider])
+  // Fetch user details using static read provider
+  const fetchUserDetails = useCallback(async (address?: string) => {
+    const targetAddress = address || walletAddress;
+    if (!targetAddress) return;
 
-  // Fetch user details from the contract
-  const fetchUserDetails = useCallback(async () => {
-    console.log("yay")
-    console.log("nigga")
-    console.log(provider)
-    if (!provider) return;
-    console.log("nigga")
     setIsLoading(true);
-
     try {
-      const contract = getUserContract(provider); // Assuming getUserContract is a utility function that returns the contract
-      const signer = provider.getSigner();
-      const user = await contract.getUser(address);
-      // console.log() // Call the getUser function of the contract
+      const contract = getUserContract(readProvider);
+      const user = await contract.getUser(targetAddress);
       console.log('User details fetched:', user);
-      setUserDetails(user); // Set the fetched user data
+      setUserDetails(user);
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error('Error fetching user details:', err.message);
-        toast.error('An error occurred while fetching the user details.');
-        setError(err.message); // Set the error message
-      } else {
-        console.error('Unknown error fetching user details:', err);
-        toast.error('An unexpected error occurred');
-        setError('An unexpected error occurred');
+        setError(err.message);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [provider, walletAddress]);
+  }, [walletAddress]);
 
-  // Add a strike to a user
+  // Auto-fetch when walletAddress changes
+  useEffect(() => {
+    if (walletAddress) {
+      fetchUserDetails(walletAddress);
+    }
+  }, [walletAddress, fetchUserDetails]);
+
+  // Add a strike to a user (write — needs MetaMask)
   const addStrike = async (userAddress: string) => {
-    if (!provider) return;
-
     setIsLoading(true);
-
-    const contract = getUserContract(provider);
-    const signer = provider.getSigner();
-    const contractWithSigner = contract.connect(signer);
-
     try {
-      const tx = await contractWithSigner.addStrike(userAddress); // Call the addStrike function of the contract
-      console.log('Add strike transaction sent:', tx);
+      const web3Provider = await getSignerProvider();
+      const signer = web3Provider.getSigner();
+      const contract = getUserContract(web3Provider);
+      const tx = await contract.connect(signer).addStrike(userAddress);
       await tx.wait();
       toast.success('Strike added successfully.');
-      fetchUserDetails(); // Refresh user details after strike is added
+      fetchUserDetails();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Error adding strike:', err.message);
-        toast.error('An error occurred while adding the strike.');
-        setError(err.message); // Set the error message
-      } else {
-        console.error('Unknown error adding strike:', err);
-        toast.error('An unexpected error occurred');
-        setError('An unexpected error occurred');
-      }
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Error adding strike:', msg);
+      toast.error('An error occurred while adding the strike.');
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Register a new user
+  // Register a new user (write — needs MetaMask)
   const addUser = async (
     name: string,
     age: number,
     city: string,
     profession: string,
     phone: string
-) => {
-    if (!provider) return;
-
+  ) => {
     setIsLoading(true);
-
-    const contract = getUserContract(provider);
-    const signer = provider.getSigner();
-    const contractWithSigner = contract.connect(signer);
-
     try {
-      const tx = await contractWithSigner.addUser(name, age, city, profession, phone);
+      const web3Provider = await getSignerProvider();
+      const signer = web3Provider.getSigner();
+      const contract = getUserContract(web3Provider);
+      const tx = await contract.connect(signer).addUser(name, age, city, profession, phone);
       console.log('User registration transaction sent:', tx);
       await tx.wait();
       toast.success('User registered successfully.');
-      fetchUserDetails(); // Refresh user details after registration
+      fetchUserDetails();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Error registering user:', err.message);
-        toast.error('An error occurred while registering the user.');
-        setError(err.message); // Set the error message
-      } else {
-        console.error('Unknown error registering user:', err);
-        toast.error('An unexpected error occurred');
-        setError('An unexpected error occurred');
-      }
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Error registering user:', msg);
+      toast.error('An error occurred while registering the user.');
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
-};
-
+  };
 
   return {
-    provider,
     userDetails,
     isLoading,
     fetchUserDetails,

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(node *)",
+      "Bash(lsof -ti:3000,5001)",
+      "Bash(xargs kill *)",
+      "Bash(node server.js)",
+      "Bash(echo \"Backend PID: $!\")",
+      "Bash(npm run *)",
+      "Bash(echo \"Frontend PID: $!\")",
+      "Bash(curl -s -o /dev/null -w \"Backend /api/loan: %{http_code}\\\\n\" http://localhost:5001/api/loan)",
+      "Bash(curl -s -o /dev/null -w \"Frontend: %{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(curl *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Hardhat node up, block:', int\\(d['result'],16\\)\\)\")",
+      "Bash(npx hardhat *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('LoanContract call OK:', 'result' in d\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); wei=int\\(d['result'],16\\); print\\(f'LoanContract balance: {wei} wei \\({wei/1e18:.6f} ETH\\)'\\)\")",
+      "Bash(lsof -ti:5001)",
+      "Bash(grep -v \"^$\")",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}

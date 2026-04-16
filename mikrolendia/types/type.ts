@@ -1,7 +1,7 @@
 export type Community = {
   name: string;
   contractAddress: string;
-  owners: [string];
+  owners: string[];
 };
 
 export type LoanRequest = {

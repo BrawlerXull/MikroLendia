@@ -10,17 +10,17 @@ export const communityFactoryAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
 
 
 export const getLoanContract = (provider: ethers.providers.Provider) => {
-  return new ethers.Contract(loanContractAddress, LoanContractABI, provider);
+  return new ethers.Contract(loanContractAddress, LoanContractABI.abi || LoanContractABI, provider);
 };
 
 export const getUserContract = (provider: ethers.providers.Provider) => {
-  return new ethers.Contract(userContractAddress, UserContractABI, provider);
+  return new ethers.Contract(userContractAddress, UserContractABI.abi || UserContractABI, provider);
 };
 
 export const getCommunityFactoryContract = (provider: ethers.providers.Provider) => {
-  return new ethers.Contract(communityFactoryAddress, CommunityFactoryABI, provider);
+  return new ethers.Contract(communityFactoryAddress, CommunityFactoryABI.abi || CommunityFactoryABI, provider);
 };
 
 export const getCommunityContract = (provider: ethers.providers.Provider, communityAddress: string) => {
-  return new ethers.Contract(communityAddress, CommunityABI, provider);
+  return new ethers.Contract(communityAddress, CommunityABI.abi || CommunityABI, provider);
 };

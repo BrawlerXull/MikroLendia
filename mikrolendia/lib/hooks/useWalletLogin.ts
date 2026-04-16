@@ -7,7 +7,15 @@ export const useWalletLogin = () => {
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // wallet_requestPermissions always shows the account selection popup
+        // even if the site was previously authorized
+        await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        });
+
+        // After permission is granted, fetch the selected account
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
 
         if (accounts.length > 0) {
           dispatch(setWalletAddress(accounts[0]));
@@ -16,7 +24,6 @@ export const useWalletLogin = () => {
         }
       } catch (error: unknown) {
         console.error('Error connecting to MetaMask:', error);
-        alert('Could not connect to MetaMask. Please try again.');
       }
     } else {
       alert('MetaMask is not installed. Please install MetaMask!');
